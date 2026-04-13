@@ -23,7 +23,7 @@ export default function AppSidebar() {
     setActive(pathname);
   }, [pathname]);
 
-  return pathname === "/" || "/focus" ? (
+  return pathname === "/" || pathname == "/focus" ? (
     <></>
   ) : (
     <Sidebar
@@ -38,11 +38,11 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-12">
         <SidebarGroup>
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-3">
             <Link
               href={"/dashboard"}
-              className={`flex items-center gap-4 text-md px-5
-                ${active == "/dashboard" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold" : "text-[#767C79] font-medium"}
+              className={`flex items-center gap-4 text-md px-5 py-3
+                ${active == "/dashboard" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
                 `}
             >
               <DashboardIcon
@@ -52,8 +52,8 @@ export default function AppSidebar() {
             </Link>
             <Link
               href={"/dump"}
-              className={`flex items-center gap-4 text-md px-5
-                ${active == "/dump" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold" : "text-[#767C79] font-medium"}
+              className={`flex items-center gap-4 text-md px-5 py-3
+                ${active == "/dump" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
                 `}
             >
               <DumpIcon fill={active == "/dump" ? "#4e635a" : "#767676"} />
@@ -61,8 +61,8 @@ export default function AppSidebar() {
             </Link>
             <Link
               href={"/declutter"}
-              className={`flex items-center gap-4 text-md px-5
-                ${active == "/declutter" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold" : "text-[#767C79] font-medium"}
+              className={`flex items-center gap-4 text-md px-5 py-3
+                ${active == "/declutter" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
                 `}
             >
               <DeclutterIcon
@@ -72,8 +72,8 @@ export default function AppSidebar() {
             </Link>
             <Link
               href={"/focus"}
-              className={`flex items-center gap-4 text-md px-5
-                ${active == "/insights" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold" : "text-[#767C79] font-medium"}
+              className={`flex items-center gap-4 text-md px-5 py-3
+                ${active == "/insights" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
                 `}
             >
               <FocusMode fill={active == "/insights" ? "#4e635a" : "#767676"} />

@@ -15,7 +15,7 @@ export default function Home() {
         <h1 className="font-bold text-xl text-[#022C22]">STFU Brain</h1>
         <Link
           href={"/dashboard"}
-          className={`${buttonVariants()} px-6 py-5 text-[16px] rounded-lg`}
+          className={`${buttonVariants()} px-6 py-2 text-[16px] rounded-lg`}
         >
           Begin journey
         </Link>
@@ -44,13 +44,13 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6">
               <Link
                 href={"/dashboard"}
-                className={`${buttonVariants()} text-lg px-10 py-8 rounded-lg font-semibold`}
+                className={`${buttonVariants()} h-min text-lg px-5 py-5 rounded-lg font-semibold`}
               >
                 <p className="text-lg">Begin Your Silence</p>
               </Link>
               <Button
                 variant={"ghost"}
-                className="text-lg px-10 py-8 rounded-lg font-semibold"
+                className="text-lg px-10 py-5 rounded-lg font-semibold"
               >
                 Learn the Method
               </Button>
@@ -236,7 +236,7 @@ export default function Home() {
               </p>
               <Link
                 href={"/dashboard"}
-                className={`${buttonVariants()} px-10 py-8 rounded-lg font-semibold`}
+                className={`${buttonVariants()} px-10 py-4 rounded-lg font-semibold`}
               >
                 <p className="text-lg">Begin Your Silence</p>
               </Link>
