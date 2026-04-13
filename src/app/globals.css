@@ -160,3 +160,12 @@
     @apply font-sans;
   }
 }
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #cbd5e1; /* slate-300 */
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+ 
