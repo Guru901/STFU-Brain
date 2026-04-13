@@ -27,7 +27,7 @@ export default function AppSidebar() {
     <></>
   ) : (
     <Sidebar
-      className="flex h-screen flex-col gap-12 px-6 py-8 bg-[#F2F4F2]"
+      className="sticky top-0 flex min-h-screen flex-col gap-12 px-6 py-8 bg-[#F2F4F2]"
       collapsible="none"
     >
       <SidebarHeader className="pb-8 px-2">
@@ -81,7 +81,7 @@ export default function AppSidebar() {
             </Link>
           </div>
         </SidebarGroup>
-        <Button className="text-md py-6">
+        <Button className="text-md py-3">
           <HugeiconsIcon
             icon={PlusSignIcon}
             size={12}
