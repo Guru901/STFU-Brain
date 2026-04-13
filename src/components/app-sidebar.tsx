@@ -28,7 +28,9 @@ export default function AppSidebar() {
     setActive(pathname);
   }, [pathname]);
 
-  return (
+  return pathname === "/" ? (
+    <></>
+  ) : (
     <Sidebar
       className="flex h-screen flex-col gap-12 px-6 py-8 bg-[#F2F4F2]"
       collapsible="none"
