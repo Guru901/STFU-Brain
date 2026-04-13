@@ -6,7 +6,7 @@ import { SearchIcon, UserIcon } from "./ui/icons";
 export default function AppNavbar() {
   const pathname = usePathname();
 
-  return pathname === "/" ? (
+  return pathname === "/" || "/focus" ? (
     <></>
   ) : (
     <div className="bg-[#F9F9F7CC] px-12 h-16 flex items-center justify-between">

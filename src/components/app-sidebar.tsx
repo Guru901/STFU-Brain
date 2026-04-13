@@ -23,7 +23,7 @@ export default function AppSidebar() {
     setActive(pathname);
   }, [pathname]);
 
-  return pathname === "/" ? (
+  return pathname === "/" || "/focus" ? (
     <></>
   ) : (
     <Sidebar
