@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
+import AppNavbar from "@/components/app-navbar";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -18,20 +19,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html
       lang="en"
       className={cn("h-full", "antialiased", manrope.className, "font-sans")}
     >
-      <SidebarProvider>
-        <AppSidebar />
-        <body className="min-h-full flex flex-col">
-          <TooltipProvider>{children}</TooltipProvider>
-        </body>
-      </SidebarProvider>
+      <body className="min-h-full flex flex-col">
+        <SidebarProvider>
+          <AppSidebar />
+          <main className="flex-1 flex flex-col">
+            <TooltipProvider>
+              <AppNavbar />
+              {children}
+            </TooltipProvider>
+          </main>
+        </SidebarProvider>
+      </body>
     </html>
   );
 }

@@ -29,7 +29,10 @@ export default function AppSidebar() {
   }, [pathname]);
 
   return (
-    <Sidebar className="flex flex-col gap-12 px-6 py-8 bg-[#F2F4F2]">
+    <Sidebar
+      className="flex h-screen flex-col gap-12 px-6 py-8 bg-[#F2F4F2]"
+      collapsible="none"
+    >
       <SidebarHeader className="pb-8 px-2">
         <h1 className="text-2xl font-light text-[#4E635A]">
           <i>STFU Brain</i>
