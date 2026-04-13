@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   ArrowRightIcon,
   BrainDumpHomeIcon,
@@ -6,15 +6,19 @@ import {
   ShutUpModeIcon,
 } from "@/components/ui/icons";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div>
       <header className="flex items-center justify-between p-8 bg-[#FAFAF9CC]">
         <h1 className="font-bold text-xl text-[#022C22]">STFU Brain</h1>
-        <Button className="px-6 py-5 text-[16px] rounded-lg">
+        <Link
+          href={"/dashboard"}
+          className={`${buttonVariants()} px-6 py-5 text-[16px] rounded-lg`}
+        >
           Begin journey
-        </Button>
+        </Link>
       </header>
 
       <section className="relative min-h-[calc(100vh-64px)] flex items-center overflow-hidden">
@@ -38,9 +42,12 @@ export default function Home() {
               into curated clarity with intentional design.
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
-              <Button className="text-lg px-10 py-8 rounded-lg font-semibold">
-                Begin Your Silence
-              </Button>
+              <Link
+                href={"/dashboard"}
+                className={`${buttonVariants()} text-lg px-10 py-8 rounded-lg font-semibold`}
+              >
+                <p className="text-lg">Begin Your Silence</p>
+              </Link>
               <Button
                 variant={"ghost"}
                 className="text-lg px-10 py-8 rounded-lg font-semibold"
@@ -227,9 +234,12 @@ export default function Home() {
                 Join 50,000+ thinkers who have traded noise for clarity. The
                 first step toward a quiet mind is simply beginning.
               </p>
-              <Button className="text-lg px-10 py-8 rounded-lg font-semibold">
-                Begin Your Silence
-              </Button>
+              <Link
+                href={"/dashboard"}
+                className={`${buttonVariants()} px-10 py-8 rounded-lg font-semibold`}
+              >
+                <p className="text-lg">Begin Your Silence</p>
+              </Link>
             </div>
           </div>
         </div>
