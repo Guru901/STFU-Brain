@@ -13,12 +13,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  DashboardIcon,
-  DeclutterIcon,
-  DumpIcon,
-  InsightsIcon,
-} from "./ui/icons";
+import { DashboardIcon, DeclutterIcon, DumpIcon, FocusMode } from "./ui/icons";
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -76,15 +71,13 @@ export default function AppSidebar() {
               Declutter
             </Link>
             <Link
-              href={"/insights"}
+              href={"/focus"}
               className={`flex items-center gap-4 text-md px-5
                 ${active == "/insights" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold" : "text-[#767C79] font-medium"}
                 `}
             >
-              <InsightsIcon
-                fill={active == "/insights" ? "#4e635a" : "#767676"}
-              />
-              Insights
+              <FocusMode fill={active == "/insights" ? "#4e635a" : "#767676"} />
+              Focus Mode
             </Link>
           </div>
         </SidebarGroup>

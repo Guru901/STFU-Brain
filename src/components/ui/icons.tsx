@@ -43,7 +43,7 @@ export function DumpIcon({ fill = "" }) {
   );
 }
 
-export function InsightsIcon({ fill = "" }) {
+export function FocusMode({ fill = "" }) {
   return (
     <svg
       width="21"
