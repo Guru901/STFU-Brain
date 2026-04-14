@@ -36,7 +36,7 @@ export default function AppSidebar() {
   const [active, setActive] = useState("dashboard");
   const [open, setOpen] = useState(false);
   const [focusOpen, setFocusOpen] = useState(false);
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+  const [selectedTask, setSelectedTask] = useState<string>("");
 
   const { data: tasks } = useQuery({
     queryKey: ["get-tasks"],
@@ -51,17 +51,11 @@ export default function AppSidebar() {
     setActive(pathname);
   }, [pathname]);
 
-  function toggleTask(id: string) {
-    setSelectedTasks((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
-  }
-
   function handleStartFocus() {
-    if (selectedTasks.length === 0) return;
+    if (selectedTask.length === 0) return;
     setFocusOpen(false);
     // Pass selected task IDs via query params or your state management
-    const params = new URLSearchParams({ tasks: selectedTasks.join(",") });
+    const params = new URLSearchParams({ tasks: selectedTask });
     router.push(`/focus?${params.toString()}`);
   }
 
@@ -121,7 +115,7 @@ export default function AppSidebar() {
               open={focusOpen}
               onOpenChange={(v) => {
                 setFocusOpen(v);
-                if (!v) setSelectedTasks([]); // reset on close
+                if (!v) setSelectedTask(""); // reset on close
               }}
             >
               <DialogTrigger
@@ -133,7 +127,6 @@ export default function AppSidebar() {
               </DialogTrigger>
 
               <DialogContent className="max-w-xl px-10 py-10 flex flex-col gap-6">
-                {/* Header */}
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-3">
                     <FocusMode fill="#4E635A" />
@@ -148,7 +141,6 @@ export default function AppSidebar() {
 
                 <Separator />
 
-                {/* Task list */}
                 <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
                   {tasks?.length === 0 ? (
                     <p className="text-[#767C79] text-sm text-center py-8">
@@ -156,11 +148,17 @@ export default function AppSidebar() {
                     </p>
                   ) : (
                     tasks?.map((task) => {
-                      const isSelected = selectedTasks.includes(task.id);
+                      const isSelected = selectedTask.includes(task.id);
                       return (
                         <button
                           key={task.id}
-                          onClick={() => toggleTask(task.id)}
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedTask("");
+                            } else {
+                              setSelectedTask(task.id);
+                            }
+                          }}
                           className={`flex items-center justify-between px-5 py-3.5 rounded-xl border text-left transition-all duration-150
                             ${
                               isSelected
@@ -190,13 +188,13 @@ export default function AppSidebar() {
                 {/* Footer */}
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-[#767C79]">
-                    {selectedTasks.length === 0
+                    {selectedTask.length === 0
                       ? "Nothing selected"
-                      : `${selectedTasks.length} task${selectedTasks.length > 1 ? "s" : ""} selected`}
+                      : "1 task selected"}
                   </p>
                   <Button
                     onClick={handleStartFocus}
-                    disabled={selectedTasks.length === 0}
+                    disabled={selectedTask.length === 0}
                     className="px-8 py-2 text-[16px]"
                   >
                     Start Focus

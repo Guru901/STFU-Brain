@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useMutation, useQueries } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-type Task = {
+export type Task = {
   id: string;
   content: string;
   priority: string;
