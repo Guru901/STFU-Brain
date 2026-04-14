@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon, ColorIcon, ItalicsIcon, ListIcon } from "./ui/icons";
+import { useEffect, useRef } from "react";
 
 const COLORS = [
   { label: "Default", value: null },
@@ -50,6 +51,10 @@ export default function Editor({ onDone, className }: EditorProps) {
   const isItalicActive = editor?.isActive("italic") ?? false;
   const isBulletActive = editor?.isActive("bulletList") ?? false;
   const currentColor = editor?.getAttributes("textStyle").color ?? null;
+
+  useEffect(() => {
+    editor?.commands.focus();
+  }, [editor]);
 
   return (
     <div
@@ -110,24 +115,20 @@ export default function Editor({ onDone, className }: EditorProps) {
 
         {/* Color palette popover */}
         <Popover>
-          <PopoverTrigger>
-            <button
-              className={cn(
-                "h-8 w-8 p-0 rounded-md flex items-center justify-center relative",
-                "text-slate-400 hover:text-slate-600 hover:bg-slate-100",
-                "transition-colors",
-              )}
-              aria-label="Text color"
-            >
-              <ColorIcon />
-              {/* Small dot showing active color */}
-              {currentColor && (
-                <span
-                  className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full ring-1 ring-white"
-                  style={{ backgroundColor: currentColor }}
-                />
-              )}
-            </button>
+          <PopoverTrigger
+            className={cn(
+              "h-8 w-8 p-0 rounded-md flex items-center justify-center relative",
+              "text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+              "transition-colors",
+            )}
+          >
+            <ColorIcon />
+            {currentColor && (
+              <span
+                className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full ring-1 ring-white"
+                style={{ backgroundColor: currentColor }}
+              />
+            )}
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3" align="end" sideOffset={8}>
             <p className="text-xs text-slate-400 mb-2 font-medium tracking-wide uppercase">

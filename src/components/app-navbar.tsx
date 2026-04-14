@@ -13,7 +13,9 @@ export default function AppNavbar() {
     setIsDump(pathname === "/dump");
   }, [pathname]);
 
-  return pathname === "/" || pathname === "/focus" ? (
+  return pathname === "/" ||
+    pathname === "/focus" ||
+    pathname === "/add-task" ? (
     <></>
   ) : !isDump ? (
     <div className="bg-[#F9F9F7CC] px-12 h-16 flex items-center justify-between">

@@ -1,8 +1,13 @@
+"use client";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import { CheckCircleIcon, ScheduleIcon, Texture } from "@/components/ui/icons";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function FocusMode() {
+  const router = useRouter();
+
   return (
     <>
       <main className="relative z-10 bg-[#0D0F0E] w-screen h-screen flex flex-col items-center justify-center px-6">
@@ -27,15 +32,15 @@ export default function FocusMode() {
             </div>
           </div>
           <div className="flex flex-col items-center space-y-8 pt-8">
-            <Link
-              href="/dashboard"
-              className={`${buttonVariants()} flex items-center space-x-4 px-10 py-4 rounded-lg`}
+            <Button
+              onClick={() => router.back()}
+              className="flex items-center space-x-4 px-10 py-4 rounded-lg"
             >
               <CheckCircleIcon />
               <span className="text-lg font-medium tracking-tight">
                 Finish Task
               </span>
-            </Link>
+            </Button>
             <button className="text-outline hover:text-surface-variant transition-colors duration-300 text-xs uppercase tracking-widest flex items-center space-x-2 opacity-50 text-[#767C79]">
               <span>Press Esc to exit silence</span>
             </button>

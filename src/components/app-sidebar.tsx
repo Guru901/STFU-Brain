@@ -8,22 +8,35 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DashboardIcon, DeclutterIcon, DumpIcon, FocusMode } from "./ui/icons";
+import {
+  BrainIcon,
+  CreateIcon,
+  DashboardIcon,
+  DeclutterIcon,
+  DumpIcon,
+  FocusMode,
+  TaskIcon,
+} from "./ui/icons";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [active, setActive] = useState("dashboard");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setActive(pathname);
   }, [pathname]);
 
-  return pathname === "/" || pathname == "/focus" ? (
+  return pathname === "/" ||
+    pathname == "/focus" ||
+    pathname === "/add-task" ? (
     <></>
   ) : (
     <Sidebar
@@ -81,15 +94,58 @@ export default function AppSidebar() {
             </Link>
           </div>
         </SidebarGroup>
-        <Button className="text-md py-3">
-          <HugeiconsIcon
-            icon={PlusSignIcon}
-            size={12}
-            color="currentColor"
-            strokeWidth={1.5}
-          />
-          New Entry
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger className={buttonVariants({ className: "py-3" })}>
+            <HugeiconsIcon
+              icon={PlusSignIcon}
+              size={12}
+              color="currentColor"
+              strokeWidth={1.5}
+            />
+            <span className="text-md">New Entry</span>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl px-28 py-12 flex flex-col items-center w-max gap-3">
+            <CreateIcon />
+            <h1 className="text-4xl font-light pt-7">Create Sanctuary</h1>
+            <p className="text-[#767C79] text-xl">
+              Let it out, then let it go.
+            </p>
+            <div className="w-full flex pt-9 gap-6">
+              <div
+                className="bg-[#F2F4F2] p-8 rounded-xl flex flex-col gap-6"
+                onClick={() => {
+                  setOpen(false);
+                  router.push("/dump");
+                }}
+              >
+                <BrainIcon />
+                <div className="flex flex-col">
+                  <h3 className="font-semibold text-[18px]">
+                    Start Brain Dump
+                  </h3>
+                  <p className="text-[16px] text-[#5A605E]">
+                    A stream of consciousness space for unfiltered thoughts.
+                  </p>
+                </div>
+              </div>
+              <div
+                className="bg-[#F2F4F2] p-8 rounded-xl flex flex-col gap-6"
+                onClick={() => {
+                  setOpen(false);
+                  router.push("/add-task");
+                }}
+              >
+                <TaskIcon />
+                <div className="flex flex-col">
+                  <h3 className="font-semibold text-[18px]">Quick Task</h3>
+                  <p className="text-[16px] text-[#5A605E]">
+                    Capture a single, focused action to clear your mental tray.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>
