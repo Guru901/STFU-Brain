@@ -2,16 +2,13 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { BreatheIcon, NoisyIcon, ResetIcon } from "@/components/ui/icons";
 import { MenuIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import Greetings from "./greetings";
 
 export default function Dashboard() {
   return (
     <div className="p-12 flex flex-col gap-16 bg-[#F9F9F7CC]">
       <div className="flex flex-col gap-2">
-        <h1 className="text-6xl font-light">Good morning, Elena.</h1>
-        <h2 className="text-[18px] w-132.5 text-[#767C79]">
-          Your digital garden is waiting. Let's clear the mental fog and set a
-          conscious intention for today.
-        </h2>
+        <Greetings />
       </div>
       <div className="flex flex-col gap-8 mx-auto">
         <div className="flex gap-8">

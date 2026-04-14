@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { SearchIcon, UserIcon } from "./ui/icons";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Button } from "./ui/button";
+import { deleteCookie } from "cookies-next";
 
 export default function AppNavbar() {
   const pathname = usePathname();
@@ -24,6 +26,16 @@ export default function AppNavbar() {
         <h1 className="text-md">MONDAY, OCT 24</h1>
       </div>
       <div className="flex gap-6 items-center">
+        <Button
+          variant={"destructive"}
+          className={"py-2 px-4"}
+          onClick={() => {
+            deleteCookie("user");
+            deleteCookie("codes");
+          }}
+        >
+          Clear Cookies
+        </Button>
         <Search />
         <UserIcon />
       </div>
