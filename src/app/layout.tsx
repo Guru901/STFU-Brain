@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Manrope, Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/app-sidebar";
-import AppNavbar from "@/components/app-navbar";
+import Content from "@/components/content";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -28,15 +25,7 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", manrope.className, "font-sans")}
     >
       <body className="min-h-full flex flex-col">
-        <SidebarProvider>
-          <AppSidebar />
-          <main className="flex-1 flex flex-col">
-            <TooltipProvider>
-              <AppNavbar />
-              {children}
-            </TooltipProvider>
-          </main>
-        </SidebarProvider>
+        <Content>{children}</Content>
       </body>
     </html>
   );
