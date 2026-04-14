@@ -15,6 +15,7 @@ export default function AppNavbar() {
 
   return pathname === "/" ||
     pathname === "/focus" ||
+    pathname == "/onboarding" ||
     pathname === "/add-task" ? (
     <></>
   ) : !isDump ? (

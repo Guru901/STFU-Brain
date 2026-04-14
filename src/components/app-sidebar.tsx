@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,19 +24,48 @@ import {
   TaskIcon,
 } from "./ui/icons";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Separator } from "./ui/separator";
+
+// Replace with your actual task type + fetch
+type Task = { id: string; title: string; tag?: string };
+
+const MOCK_TASKS: Task[] = [
+  { id: "1", title: "Review PR for auth module", tag: "Dev" },
+  { id: "2", title: "Write HexStack blog post intro", tag: "Writing" },
+  { id: "3", title: "Reply to Upwork client", tag: "Freelance" },
+  { id: "4", title: "Fix Wynd handle.clients() edge case", tag: "Dev" },
+  { id: "5", title: "Plan Sonus TCP buffer refactor", tag: "Sonus" },
+];
 
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [active, setActive] = useState("dashboard");
   const [open, setOpen] = useState(false);
+  const [focusOpen, setFocusOpen] = useState(false);
+  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
 
   useEffect(() => {
     setActive(pathname);
   }, [pathname]);
 
+  function toggleTask(id: string) {
+    setSelectedTasks((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+    );
+  }
+
+  function handleStartFocus() {
+    if (selectedTasks.length === 0) return;
+    setFocusOpen(false);
+    // Pass selected task IDs via query params or your state management
+    const params = new URLSearchParams({ tasks: selectedTasks.join(",") });
+    router.push(`/focus?${params.toString()}`);
+  }
+
   return pathname === "/" ||
-    pathname == "/focus" ||
+    pathname === "/focus" ||
+    pathname === "/onboarding" ||
     pathname === "/add-task" ? (
     <></>
   ) : (
@@ -49,51 +79,137 @@ export default function AppSidebar() {
         </h1>
         <p className="text-sm font-light text-[#4E635A]">SHUT THE FUCK UP</p>
       </SidebarHeader>
+
       <SidebarContent className="flex flex-col gap-12">
         <SidebarGroup>
           <div className="flex flex-col gap-3">
             <Link
               href={"/dashboard"}
               className={`flex items-center gap-4 text-md px-5 py-3
-                ${active == "/dashboard" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
-                `}
+                ${active === "/dashboard" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
             >
               <DashboardIcon
-                fill={active == "/dashboard" ? "#4e635a" : "#767676"}
+                fill={active === "/dashboard" ? "#4e635a" : "#767676"}
               />
               Dashboard
             </Link>
+
             <Link
               href={"/dump"}
               className={`flex items-center gap-4 text-md px-5 py-3
-                ${active == "/dump" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
-                `}
+                ${active === "/dump" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
             >
-              <DumpIcon fill={active == "/dump" ? "#4e635a" : "#767676"} />
+              <DumpIcon fill={active === "/dump" ? "#4e635a" : "#767676"} />
               Brain Dump
             </Link>
+
             <Link
               href={"/declutter"}
               className={`flex items-center gap-4 text-md px-5 py-3
-                ${active == "/declutter" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
-                `}
+                ${active === "/declutter" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
             >
               <DeclutterIcon
-                fill={active == "/declutter" ? "#4e635a" : "#767676"}
+                fill={active === "/declutter" ? "#4e635a" : "#767676"}
               />
               Declutter
             </Link>
-            <Link
-              href={"/focus"}
-              className={`flex items-center gap-4 text-md px-5 py-3
-                ${active == "/insights" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}
-                `}
+
+            {/* Focus Mode — opens dialog instead of navigating */}
+            <Dialog
+              open={focusOpen}
+              onOpenChange={(v) => {
+                setFocusOpen(v);
+                if (!v) setSelectedTasks([]); // reset on close
+              }}
             >
-              <FocusMode fill={active == "/insights" ? "#4e635a" : "#767676"} />
-              Focus Mode
-            </Link>
+              <DialogTrigger>
+                <button
+                  className={`flex items-center gap-4 text-md px-5 py-3 text-left w-full
+                    ${active === "/focus" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
+                >
+                  <FocusMode
+                    fill={active === "/focus" ? "#4e635a" : "#767676"}
+                  />
+                  Focus Mode
+                </button>
+              </DialogTrigger>
+
+              <DialogContent className="max-w-xl px-10 py-10 flex flex-col gap-6">
+                {/* Header */}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3">
+                    <FocusMode fill="#4E635A" />
+                    <h2 className="text-3xl font-light text-[#4E635A]">
+                      Focus Mode
+                    </h2>
+                  </div>
+                  <p className="text-[#767C79] text-sm pl-9">
+                    Pick what needs your attention right now.
+                  </p>
+                </div>
+
+                <Separator />
+
+                {/* Task list */}
+                <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                  {MOCK_TASKS.length === 0 ? (
+                    <p className="text-[#767C79] text-sm text-center py-8">
+                      No pending tasks. You're all clear 🌿
+                    </p>
+                  ) : (
+                    MOCK_TASKS.map((task) => {
+                      const isSelected = selectedTasks.includes(task.id);
+                      return (
+                        <button
+                          key={task.id}
+                          onClick={() => toggleTask(task.id)}
+                          className={`flex items-center justify-between px-5 py-3.5 rounded-xl border text-left transition-all duration-150
+                            ${
+                              isSelected
+                                ? "bg-[#4E635A] border-[#4E635A] text-white"
+                                : "bg-white border-[#E2E6E3] text-[#4E635A] hover:border-[#4E635A]/40"
+                            }`}
+                        >
+                          <span className="text-sm font-medium">
+                            {task.title}
+                          </span>
+                          {task.tag && (
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-3
+                                ${isSelected ? "bg-white/20 text-white" : "bg-[#F2F4F2] text-[#767C79]"}`}
+                            >
+                              {task.tag}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+
+                <Separator />
+
+                {/* Footer */}
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-[#767C79]">
+                    {selectedTasks.length === 0
+                      ? "Nothing selected"
+                      : `${selectedTasks.length} task${selectedTasks.length > 1 ? "s" : ""} selected`}
+                  </p>
+                  <Button
+                    onClick={handleStartFocus}
+                    disabled={selectedTasks.length === 0}
+                    className="px-8 py-2 text-[16px]"
+                  >
+                    Start Focus
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </SidebarGroup>
+
+        {/* New Entry dialog — unchanged */}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger className={buttonVariants({ className: "py-3" })}>
             <HugeiconsIcon
@@ -112,7 +228,7 @@ export default function AppSidebar() {
             </p>
             <div className="w-full flex pt-9 gap-6">
               <div
-                className="bg-[#F2F4F2] p-8 rounded-xl flex flex-col gap-6"
+                className="bg-[#F2F4F2] p-8 rounded-xl flex flex-col gap-6 cursor-pointer"
                 onClick={() => {
                   setOpen(false);
                   router.push("/dump");
@@ -129,7 +245,7 @@ export default function AppSidebar() {
                 </div>
               </div>
               <div
-                className="bg-[#F2F4F2] p-8 rounded-xl flex flex-col gap-6"
+                className="bg-[#F2F4F2] p-8 rounded-xl flex flex-col gap-6 cursor-pointer"
                 onClick={() => {
                   setOpen(false);
                   router.push("/add-task");
@@ -147,6 +263,7 @@ export default function AppSidebar() {
           </DialogContent>
         </Dialog>
       </SidebarContent>
+
       <SidebarFooter />
     </Sidebar>
   );

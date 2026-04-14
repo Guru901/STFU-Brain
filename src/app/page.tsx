@@ -14,7 +14,7 @@ export default function Home() {
       <header className="flex items-center justify-between p-8 bg-[#FAFAF9CC]">
         <h1 className="font-bold text-xl text-[#022C22]">STFU Brain</h1>
         <Link
-          href={"/dashboard"}
+          href={"/onboarding"}
           className={`${buttonVariants()} px-6 py-2 text-[16px] rounded-lg`}
         >
           Begin journey
@@ -43,7 +43,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
               <Link
-                href={"/dashboard"}
+                href={"/onboarding"}
                 className={`${buttonVariants()} h-min text-lg px-5 py-5 rounded-lg font-semibold`}
               >
                 <p className="text-lg">Begin Your Silence</p>
@@ -235,7 +235,7 @@ export default function Home() {
                 first step toward a quiet mind is simply beginning.
               </p>
               <Link
-                href={"/dashboard"}
+                href={"/onboarding"}
                 className={`${buttonVariants()} px-10 py-4 rounded-lg font-semibold`}
               >
                 <p className="text-lg">Begin Your Silence</p>
