@@ -6,6 +6,7 @@ import AppNavbar from "@/components/app-navbar";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import QueryProvider from "./query-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function Content({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -29,6 +30,7 @@ export default function Content({ children }: { children: React.ReactNode }) {
             </AnimatePresence>
           </TooltipProvider>
         </main>
+        <Toaster />
       </SidebarProvider>
     </QueryProvider>
   );

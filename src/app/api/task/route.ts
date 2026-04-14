@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { taskTable, usersTable } from "@/db/schema";
-import { ilike } from "drizzle-orm";
+import { taskTable } from "@/db/schema";
+import { eq, ilike, and } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -58,9 +58,12 @@ export async function GET(req: NextRequest) {
         content: taskTable.content,
         priority: taskTable.priority,
         extraContext: taskTable.extraContext,
+        completed: taskTable.completed,
       })
       .from(taskTable)
-      .where(ilike(taskTable.codes, codes));
+      .where(
+        and(ilike(taskTable.codes, codes), eq(taskTable.completed, false)),
+      );
 
     return NextResponse.json(tasks);
   } catch (error) {

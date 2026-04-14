@@ -6,6 +6,7 @@ import {
   timestamp,
   uuid,
   pgEnum,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
@@ -28,6 +29,7 @@ export const taskTable = pgTable("task", {
   priority: taskPriority().notNull().default("low"),
   codes: varchar({ length: 255 }).notNull(),
   extraContext: text(),
+  completed: boolean().default(false),
   createdAt: timestamp().defaultNow(),
 });
 

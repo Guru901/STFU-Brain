@@ -1,6 +1,6 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRightIcon, WorryIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -10,7 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { useQueries } from "@tanstack/react-query";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type Task = {
   id: string;
@@ -18,6 +19,7 @@ type Task = {
   priority: string;
   extraContext: string;
   createdAt: string;
+  completed: boolean;
 };
 type RandomThought = { id: string; content: string; codes: string };
 type Worry = { id: string; content: string; codes: string };
@@ -84,12 +86,34 @@ function TaskDialog({
   task,
   open,
   onOpenChange,
+  refetch,
 }: {
   task: Task | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  refetch: () => void;
 }) {
-  const [completed, setCompleted] = useState(false);
+  const markAsCompletedMutation = useMutation({
+    mutationKey: ["mark-task-as-complete"],
+    mutationFn: async (taskId: string) => {
+      const response = await fetch("/api/task/complete/" + taskId);
+
+      if (!response.ok) {
+        toast.error("Failed to mark task as complete");
+      }
+    },
+    onSuccess: async () => {
+      await refetch();
+      onOpenChange(false);
+    },
+    onError: () => {
+      toast.error("Failed to mark task as complete");
+    },
+  });
+
+  async function markTaskAsComplete(taskId: string) {
+    await markAsCompletedMutation.mutateAsync(taskId);
+  }
 
   if (!task) return null;
 
@@ -129,32 +153,33 @@ function TaskDialog({
           )}
 
           <div className="flex flex-col gap-3 pt-2">
-            <button
-              onClick={() => setCompleted(true)}
-              className={`w-full p-5 rounded-2xl text-left transition-all flex items-center justify-between group ${
-                completed
-                  ? "bg-[#D1E8DD] text-[#2D5A45]"
-                  : "bg-white hover:bg-[#F2F4F2]"
-              }`}
+            <Button
+              variant={"secondary"}
+              onClick={async () => await markTaskAsComplete(task.id)}
+              disabled={markAsCompletedMutation.isPending ?? task.completed}
+              className="w-full p-5 rounded-2xl text-left transition-all flex items-center justify-between group"
             >
               <span className="font-medium text-sm">
-                {completed ? "Marked as complete" : "Mark as complete"}
+                {markAsCompletedMutation.isPending
+                  ? "Marking..."
+                  : "Mark as complete"}
               </span>
-              {completed ? (
+              {task.completed ? (
                 <span className="text-[#2D5A45] text-lg">✓</span>
               ) : (
                 <span className="w-5 h-5 rounded-full border border-[#767C79] group-hover:border-[#2D5A45] transition-colors" />
               )}
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="w-full p-5 bg-white hover:bg-[#F2F4F2] rounded-2xl text-left transition-all"
+              className="w-full p-5 text-start! bg-white hover:bg-[#F2F4F2] rounded-2xl justify-start!  transition-all"
             >
               <span className="font-medium text-sm text-[#767C79]">
                 Dismiss
               </span>
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>
@@ -316,6 +341,7 @@ export default function Declutter() {
         task={selectedTask}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        refetch={tasks.refetch}
       />
     </div>
   );
