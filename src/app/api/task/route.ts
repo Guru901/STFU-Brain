@@ -57,6 +57,7 @@ export async function GET(req: NextRequest) {
         id: taskTable.id,
         content: taskTable.content,
         priority: taskTable.priority,
+        extraContext: taskTable.extraContext,
       })
       .from(taskTable)
       .where(ilike(taskTable.codes, codes));

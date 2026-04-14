@@ -71,6 +71,7 @@ export default function AddTask() {
         <div className="w-full flex items-center">
           <Input
             type="text"
+            autoFocus
             placeholder="Write it here and let it go..."
             {...register("title", { required: true })}
             className="bg-transparent! h-20! border-none border-b! outline-none focus:ring-0! text-4xl!"
