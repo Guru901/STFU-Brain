@@ -569,3 +569,20 @@ export function ReturnIcon() {
     </svg>
   );
 }
+
+export function BoltIcon() {
+  return (
+    <svg
+      width="15"
+      height="25"
+      viewBox="0 0 15 25"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.836517 17.6009L0 16.7644L5.36537 11.399L8.36537 14.399L13.6471 8.39905L14.4375 9.17499L8.37979 16.0865L5.36537 13.0721L0.836517 17.6009V17.6009"
+        fill="#4E635A"
+      />
+    </svg>
+  );
+}

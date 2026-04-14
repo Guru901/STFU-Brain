@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { deleteCookie } from "cookies-next";
+import Link from "next/link";
 
 export default function AppNavbar() {
   const pathname = usePathname();
@@ -37,7 +38,9 @@ export default function AppNavbar() {
           Clear Cookies
         </Button>
         <Search />
-        <UserIcon />
+        <Link href={"/me"}>
+          <UserIcon />
+        </Link>
       </div>
     </div>
   ) : (
@@ -48,7 +51,9 @@ export default function AppNavbar() {
       </div>
       <div className="flex gap-6 items-center">
         <SearchIcon />
-        <UserIcon />
+        <Link href={"/me"}>
+          <UserIcon />
+        </Link>
       </div>
     </div>
   );

@@ -122,16 +122,12 @@ export default function AppSidebar() {
                 if (!v) setSelectedTasks([]); // reset on close
               }}
             >
-              <DialogTrigger>
-                <button
-                  className={`flex items-center gap-4 text-md px-5 py-3 text-left w-full
+              <DialogTrigger
+                className={`flex items-center gap-4 text-md px-5 py-3 text-left w-full cursor-pointer
                     ${active === "/focus" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
-                >
-                  <FocusMode
-                    fill={active === "/focus" ? "#4e635a" : "#767676"}
-                  />
-                  Focus Mode
-                </button>
+              >
+                <FocusMode fill={active === "/focus" ? "#4e635a" : "#767676"} />
+                Focus Mode
               </DialogTrigger>
 
               <DialogContent className="max-w-xl px-10 py-10 flex flex-col gap-6">
