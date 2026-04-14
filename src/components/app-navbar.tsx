@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { deleteCookie } from "cookies-next";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
 
 export default function AppNavbar() {
   const pathname = usePathname();
@@ -60,16 +61,25 @@ export default function AppNavbar() {
 }
 
 function Search() {
+  const { register, handleSubmit, reset } = useForm<{ query: string }>({
+    defaultValues: { query: "" },
+  });
+
+  const onSubmit = () => {
+    reset();
+  };
+
   return (
-    <div className="w-full">
+    <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="relative">
         <Input
           className="bg-[#F2F4F2] py-2 rounded-full w-[256px] h-8"
           placeholder="Search..."
           type="text"
+          {...register("query")}
         />
         <SearchIcon className="absolute top-1/2 right-3 -translate-y-1/2" />
       </div>
-    </div>
+    </form>
   );
 }

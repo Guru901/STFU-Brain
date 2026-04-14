@@ -21,9 +21,10 @@ import {
   ListIcon,
   UnderlineIcon,
 } from "./ui/icons";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 
 const COLORS = [
   { label: "Default", value: null },
@@ -63,19 +64,26 @@ export default function Editor() {
     editor?.commands.focus();
   }, [editor]);
 
-  async function saveText() {
-    const text = editor?.getHTML();
-    const response = await fetch("/api/dump", {
-      method: "POST",
-      body: JSON.stringify({ content: text }),
-    });
+  const saveDumpMutation = useMutation({
+    mutationFn: async () => {
+      const text = editor?.getHTML();
+      const response = await fetch("/api/dump", {
+        method: "POST",
+        body: JSON.stringify({ content: text }),
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        throw new Error("Failed to save dump");
+      }
+    },
+    onSuccess: () => {
       router.push("/dashboard");
-    }
-  }
+    },
+  });
 
-  useHotkeys("shift+enter", () => alert("Submitting form"));
+  useHotkeys("shift+enter", () => {
+    saveDumpMutation.mutate();
+  });
 
   return (
     <div
@@ -213,10 +221,11 @@ export default function Editor() {
 
         <Button
           variant="secondary"
-          onClick={saveText}
+          onClick={() => saveDumpMutation.mutate()}
+          disabled={saveDumpMutation.isPending}
           className="px-6 py-4 flex gap-2"
         >
-          DONE
+          {saveDumpMutation.isPending ? "SAVING..." : "DONE"}
           <ArrowRightIcon />
         </Button>
       </div>

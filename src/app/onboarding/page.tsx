@@ -10,51 +10,94 @@ import { useEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+
+type OnboardingFormValues = {
+  name: string;
+};
+
+type RecoveryFormValues = {
+  recoverName: string;
+  recoverCodes: string;
+};
 
 export default function OnBoarding() {
-  const [buttonText, setButtonText] = useState("Submit");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [name, setName] = useState("");
-  const [recoveryCode, setRecoveryCode] = useState([]);
+  const [recoveryCode, setRecoveryCode] = useState<string[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Recovery dialog state
   const [recoverOpen, setRecoverOpen] = useState(false);
-  const [recoverName, setRecoverName] = useState("");
-  const [recoverCodes, setRecoverCodes] = useState("");
-  const [isRecovering, setIsRecovering] = useState(false);
   const [recoverError, setRecoverError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<OnboardingFormValues>({
+    defaultValues: { name: "" },
+  });
+  const recoveryForm = useForm<RecoveryFormValues>({
+    defaultValues: { recoverName: "", recoverCodes: "" },
+    mode: "onChange",
+  });
 
   const router = useRouter();
 
-  useHotkeys("shift+enter", async () => {
-    await submitForm();
+  const createUserMutation = useMutation({
+    mutationFn: async ({ name }: OnboardingFormValues) => {
+      const response = await fetch("/api/user", {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save user");
+      }
+
+      const jsonData = await response.json();
+      return jsonData.data.codes as string[];
+    },
+    onSuccess: (codes) => {
+      setRecoveryCode(codes);
+      setOpen(true);
+    },
   });
 
-  async function submitForm() {
-    setIsSubmitting(true);
-    setButtonText("Submitting...");
-    const response = await fetch("/api/user", {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
+  const recoverMutation = useMutation({
+    mutationFn: async ({ recoverName, recoverCodes }: RecoveryFormValues) => {
+      const response = await fetch("/api/user/recover", {
+        method: "POST",
+        body: JSON.stringify({ name: recoverName, codes: recoverCodes }),
+      });
 
-    if (!response.ok) {
-      throw new Error("Failed to save user");
-    }
+      if (!response.ok) {
+        throw new Error("Couldn't verify your account. Check your name and codes.");
+      }
+      return response.json();
+    },
 
-    const jsonData = await response.json();
-    const {
-      data: { codes },
-    } = jsonData;
+    onSuccess: () => {
+      setRecoverOpen(false);
+      recoveryForm.reset();
+      router.push("/dashboard");
+    },
+    onError: () => {
+      setRecoverError("Couldn't verify your account. Check your name and codes.");
+    },
+  });
 
-    setRecoveryCode(codes);
-    setIsSubmitting(false);
-    setOpen(true);
+  useHotkeys("shift+enter", async () => {
+    await handleSubmit(async (values) => {
+      await createUserMutation.mutateAsync(values);
+    })();
+  }
+  );
+
+  async function submitForm(values: OnboardingFormValues) {
+    await createUserMutation.mutateAsync(values);
   }
 
   useEffect(() => {
@@ -67,7 +110,12 @@ export default function OnBoarding() {
     } else {
       router.push("/dashboard");
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, router]);
+
+  useEffect(() => {
+    if (!recoverOpen) return;
+    recoveryForm.setFocus("recoverName");
+  }, [recoverOpen, recoveryForm]);
 
   function handleCopy() {
     navigator.clipboard.writeText(recoveryCode.join("\n"));
@@ -90,50 +138,27 @@ export default function OnBoarding() {
     router.push("/dashboard");
   }
 
-  async function handleRecover() {
-    setIsRecovering(true);
+  async function handleRecover(values: RecoveryFormValues) {
     setRecoverError("");
-
-    const response = await fetch("/api/user/recover", {
-      method: "POST",
-      body: JSON.stringify({ name: recoverName, codes: recoverCodes }),
-    });
-
-    if (!response.ok) {
-      setRecoverError(
-        "Couldn't verify your account. Check your name and codes.",
-      );
-      setIsRecovering(false);
-      return;
-    }
-
-    setIsRecovering(false);
-    setRecoverOpen(false);
-    router.push("/dashboard");
+    await recoverMutation.mutateAsync(values);
   }
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-5xl my-auto w-screen h-screen gap-16">
       <h1 className="font-extralight text-7xl">What's your name?</h1>
-      <div className="w-full">
+      <form className="w-full" onSubmit={handleSubmit(submitForm)}>
         <div className="w-full flex items-center">
           <Input
             ref={inputRef}
             type="text"
             placeholder="Write it here"
-            value={name}
-            onChange={(e) => {
-              if (e.target.value === "esc") {
-                console.log("esc");
-              }
-              setName(e.target.value);
-            }}
+            {...register("name", { required: true })}
             onKeyDown={async (e) => {
               if (e.key === "Escape") {
                 inputRef.current?.blur();
               }
               if (e.key === "Enter") {
-                await submitForm();
+                await handleSubmit(submitForm)();
               }
             }}
             className="bg-transparent! h-20! border-none border-b! outline-none focus:ring-0! text-4xl!"
@@ -141,15 +166,15 @@ export default function OnBoarding() {
           <ReturnIcon />
         </div>
         <Separator className="mx-auto" />
-      </div>
+      </form>
       <div className="flex flex-col gap-5 items-center">
         <Button
           size="lg"
-          onClick={submitForm}
+          onClick={handleSubmit(submitForm)}
           disabled={isSubmitting}
           className="text-2xl py-8 px-12 flex items-center gap-2"
         >
-          {buttonText}
+          {isSubmitting ? "Submitting..." : "Submit"}
           {isSubmitting ? (
             <HugeiconsIcon
               icon={FirstBracketIcon}
@@ -243,9 +268,8 @@ export default function OnBoarding() {
         onOpenChange={(v) => {
           setRecoverOpen(v);
           if (!v) {
-            setRecoverName("");
-            setRecoverCodes("");
             setRecoverError("");
+            recoveryForm.reset();
           }
         }}
       >
@@ -260,14 +284,16 @@ export default function OnBoarding() {
 
           <Separator className="w-full" />
 
-          <div className="w-full flex flex-col gap-6">
+          <form
+            className="w-full flex flex-col gap-6"
+            onSubmit={recoveryForm.handleSubmit(handleRecover)}
+          >
             <div className="w-full">
               <div className="w-full flex items-center">
                 <Input
                   type="text"
                   placeholder="Your username"
-                  value={recoverName}
-                  onChange={(e) => setRecoverName(e.target.value)}
+                  {...recoveryForm.register("recoverName", { required: true })}
                   className="bg-transparent! h-14! border-none border-b! outline-none focus:ring-0! text-2xl!"
                 />
               </div>
@@ -279,8 +305,7 @@ export default function OnBoarding() {
                 <Input
                   type="text"
                   placeholder="code-1, code-2, code-3..."
-                  value={recoverCodes}
-                  onChange={(e) => setRecoverCodes(e.target.value)}
+                  {...recoveryForm.register("recoverCodes", { required: true })}
                   className="bg-transparent! h-14! border-none border-b! outline-none focus:ring-0! text-xl! font-mono"
                 />
               </div>
@@ -289,7 +314,7 @@ export default function OnBoarding() {
                 Even one valid code may be enough depending on your setup.
               </p>
             </div>
-          </div>
+          </form>
 
           {recoverError && (
             <p className="text-red-500 text-sm text-center w-full">
@@ -302,13 +327,14 @@ export default function OnBoarding() {
           <Button
             size="lg"
             className="w-full text-lg py-6 flex items-center gap-2"
-            onClick={handleRecover}
+            onClick={recoveryForm.handleSubmit(handleRecover)}
             disabled={
-              isRecovering || !recoverName.trim() || !recoverCodes.trim()
+              recoverMutation.isPending ||
+              !recoveryForm.formState.isValid
             }
           >
-            {isRecovering ? "Verifying..." : "Recover Account"}
-            {isRecovering ? (
+            {recoverMutation.isPending ? "Verifying..." : "Recover Account"}
+            {recoverMutation.isPending ? (
               <HugeiconsIcon
                 icon={FirstBracketIcon}
                 stroke="2"
