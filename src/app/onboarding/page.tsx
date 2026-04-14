@@ -74,7 +74,9 @@ export default function OnBoarding() {
       });
 
       if (!response.ok) {
-        throw new Error("Couldn't verify your account. Check your name and codes.");
+        throw new Error(
+          "Couldn't verify your account. Check your name and codes.",
+        );
       }
       return response.json();
     },
@@ -85,7 +87,9 @@ export default function OnBoarding() {
       router.push("/dashboard");
     },
     onError: () => {
-      setRecoverError("Couldn't verify your account. Check your name and codes.");
+      setRecoverError(
+        "Couldn't verify your account. Check your name and codes.",
+      );
     },
   });
 
@@ -93,8 +97,7 @@ export default function OnBoarding() {
     await handleSubmit(async (values) => {
       await createUserMutation.mutateAsync(values);
     })();
-  }
-  );
+  });
 
   async function submitForm(values: OnboardingFormValues) {
     await createUserMutation.mutateAsync(values);
@@ -149,7 +152,6 @@ export default function OnBoarding() {
       <form className="w-full" onSubmit={handleSubmit(submitForm)}>
         <div className="w-full flex items-center">
           <Input
-            ref={inputRef}
             type="text"
             placeholder="Write it here"
             {...register("name", { required: true })}
@@ -329,8 +331,7 @@ export default function OnBoarding() {
             className="w-full text-lg py-6 flex items-center gap-2"
             onClick={recoveryForm.handleSubmit(handleRecover)}
             disabled={
-              recoverMutation.isPending ||
-              !recoveryForm.formState.isValid
+              recoverMutation.isPending || !recoveryForm.formState.isValid
             }
           >
             {recoverMutation.isPending ? "Verifying..." : "Recover Account"}

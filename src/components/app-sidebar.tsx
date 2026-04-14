@@ -25,17 +25,10 @@ import {
 } from "./ui/icons";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Separator } from "./ui/separator";
+import { useQuery } from "@tanstack/react-query";
 
 // Replace with your actual task type + fetch
-type Task = { id: string; title: string; tag?: string };
-
-const MOCK_TASKS: Task[] = [
-  { id: "1", title: "Review PR for auth module", tag: "Dev" },
-  { id: "2", title: "Write HexStack blog post intro", tag: "Writing" },
-  { id: "3", title: "Reply to Upwork client", tag: "Freelance" },
-  { id: "4", title: "Fix Wynd handle.clients() edge case", tag: "Dev" },
-  { id: "5", title: "Plan Sonus TCP buffer refactor", tag: "Sonus" },
-];
+type Task = { id: string; content: string; priority: string };
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -44,6 +37,15 @@ export default function AppSidebar() {
   const [open, setOpen] = useState(false);
   const [focusOpen, setFocusOpen] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+
+  const { data: tasks } = useQuery({
+    queryKey: ["get-tasks"],
+    queryFn: async (): Promise<Task[]> => {
+      const response = await fetch("/api/task");
+      const data = await response.json();
+      return data;
+    },
+  });
 
   useEffect(() => {
     setActive(pathname);
@@ -148,12 +150,12 @@ export default function AppSidebar() {
 
                 {/* Task list */}
                 <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
-                  {MOCK_TASKS.length === 0 ? (
+                  {tasks?.length === 0 ? (
                     <p className="text-[#767C79] text-sm text-center py-8">
                       No pending tasks. You're all clear 🌿
                     </p>
                   ) : (
-                    MOCK_TASKS.map((task) => {
+                    tasks?.map((task) => {
                       const isSelected = selectedTasks.includes(task.id);
                       return (
                         <button
@@ -167,14 +169,14 @@ export default function AppSidebar() {
                             }`}
                         >
                           <span className="text-sm font-medium">
-                            {task.title}
+                            {task.content}
                           </span>
-                          {task.tag && (
+                          {task.priority && (
                             <span
                               className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-3
                                 ${isSelected ? "bg-white/20 text-white" : "bg-[#F2F4F2] text-[#767C79]"}`}
                             >
-                              {task.tag}
+                              {task.priority}
                             </span>
                           )}
                         </button>

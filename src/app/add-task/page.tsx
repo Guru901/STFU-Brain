@@ -10,6 +10,8 @@ import { Tabs, TabsList } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Controller, useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useUser } from "@/lib/useUser";
 
 type AddTaskFormValues = {
   title: string;
@@ -19,6 +21,8 @@ type AddTaskFormValues = {
 
 export default function AddTask() {
   const router = useRouter();
+  const { codes } = useUser();
+
   const { register, handleSubmit, control } = useForm<AddTaskFormValues>({
     defaultValues: {
       title: "",
@@ -27,9 +31,30 @@ export default function AddTask() {
     },
   });
 
-  const onSubmit = () => {
-    router.push("/dashboard");
-  };
+  const addTaskMutation = useMutation({
+    mutationFn: async ({ note, priority, title }: AddTaskFormValues) => {
+      const response = await fetch("/api/task", {
+        method: "POST",
+        body: JSON.stringify({
+          content: title,
+          codes,
+          context: note,
+          priority,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save task");
+      }
+    },
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+  });
+
+  async function onSubmit(data: AddTaskFormValues) {
+    await addTaskMutation.mutateAsync(data);
+  }
 
   useHotkeys("shift+enter", () => {
     void handleSubmit(onSubmit)();
@@ -100,8 +125,9 @@ export default function AddTask() {
           size="lg"
           onClick={handleSubmit(onSubmit)}
           className="text-2xl py-8 px-12 flex items-center gap-2"
+          disabled={addTaskMutation.isPending}
         >
-          Commit to Task
+          {addTaskMutation.isPending ? "SAVING..." : "Commit to Task"}
           <ArrowRightIcon color="#E6FDF2" />
         </Button>
         <div>

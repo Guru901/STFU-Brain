@@ -20,7 +20,7 @@ export const dumpTable = pgTable("dump", {
   createdAt: timestamp().defaultNow(),
 });
 
-const taskPriority = pgEnum("priority", ["low", "routine", "high"]);
+export const taskPriority = pgEnum("priority", ["low", "routine", "high"]);
 
 export const taskTable = pgTable("task", {
   id: uuid().defaultRandom().primaryKey(),
