@@ -1,13 +1,24 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { ArrowRightIcon, ReturnIcon } from "@/components/ui/icons";
 import { Input } from "@/components/ui/input";
-import { Kbd } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import { TabsTrigger } from "@/components/ui/tabs";
 import { Tabs, TabsList } from "@/components/ui/tabs";
+import { useRouter } from "next/navigation";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export default function AddTask() {
+  const router = useRouter();
+
+  useHotkeys("shift+enter", () => alert("Submitting form"));
+
+  useHotkeys("esc", () => {
+    router.back();
+  });
+
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-5xl my-auto w-screen h-screen gap-16">
       <h1 className="font-extralight text-7xl">What needs doing?</h1>
@@ -64,7 +75,12 @@ export default function AddTask() {
           Commit to Task
           <ArrowRightIcon color="#E6FDF2" />
         </Button>
-        <p className="text-[16px]">Or press Esc to exit silence</p>
+        <div>
+          <p className="text-[16px] text-center">Press Esc to exit silence</p>
+          <p className="text-[16px] text-center">
+            Press Shift+Return to submit
+          </p>
+        </div>
       </div>
     </div>
   );

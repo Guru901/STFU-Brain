@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon, ColorIcon, ItalicsIcon, ListIcon } from "./ui/icons";
 import { useEffect, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const COLORS = [
   { label: "Default", value: null },
@@ -56,6 +57,8 @@ export default function Editor({ onDone, className }: EditorProps) {
     editor?.commands.focus();
   }, [editor]);
 
+  useHotkeys("shift+enter", () => alert("Submitting form"));
+
   return (
     <div
       className={
@@ -83,6 +86,7 @@ export default function Editor({ onDone, className }: EditorProps) {
 
       {/* Bottom toolbar */}
       <div className="flex items-center justify-end gap-2 px-6 py-4">
+        <p className="text-sm text-[#767676]">Press Shift+Return to submit</p>
         <Toggle
           size="sm"
           pressed={isItalicActive}
