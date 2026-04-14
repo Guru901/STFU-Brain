@@ -93,14 +93,10 @@ export default function OnBoarding() {
   async function handleRecover() {
     setIsRecovering(true);
     setRecoverError("");
-    const codes = recoverCodes
-      .split(",")
-      .map((c) => c.trim())
-      .filter(Boolean);
 
     const response = await fetch("/api/user/recover", {
       method: "POST",
-      body: JSON.stringify({ name: recoverName, codes }),
+      body: JSON.stringify({ name: recoverName, codes: recoverCodes }),
     });
 
     if (!response.ok) {

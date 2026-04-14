@@ -13,9 +13,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { ArrowRightIcon, ColorIcon, ItalicsIcon, ListIcon } from "./ui/icons";
+import {
+  ArrowRightIcon,
+  BoldIcon,
+  ColorIcon,
+  ItalicsIcon,
+  ListIcon,
+  UnderlineIcon,
+} from "./ui/icons";
 import { useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useRouter } from "next/navigation";
 
 const COLORS = [
   { label: "Default", value: null },
@@ -30,12 +38,8 @@ const COLORS = [
   { label: "Pink", value: "#db2777" },
 ];
 
-interface EditorProps {
-  onDone?: () => void;
-  className?: string;
-}
-
-export default function Editor({ onDone, className }: EditorProps) {
+export default function Editor() {
+  const router = useRouter();
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -50,12 +54,26 @@ export default function Editor({ onDone, className }: EditorProps) {
   });
 
   const isItalicActive = editor?.isActive("italic") ?? false;
+  const isBoldActive = editor?.isActive("bold") ?? false;
+  const isUnderlineActive = editor?.isActive("underline") ?? false;
   const isBulletActive = editor?.isActive("bulletList") ?? false;
   const currentColor = editor?.getAttributes("textStyle").color ?? null;
 
   useEffect(() => {
     editor?.commands.focus();
   }, [editor]);
+
+  async function saveText() {
+    const text = editor?.getHTML();
+    const response = await fetch("/api/dump", {
+      method: "POST",
+      body: JSON.stringify({ content: text }),
+    });
+
+    if (response.ok) {
+      router.push("/dashboard");
+    }
+  }
 
   useHotkeys("shift+enter", () => alert("Submitting form"));
 
@@ -99,6 +117,35 @@ export default function Editor({ onDone, className }: EditorProps) {
           aria-label="Italic"
         >
           <ItalicsIcon />
+        </Toggle>
+
+        <Toggle
+          size="sm"
+          pressed={isBoldActive}
+          onPressedChange={() => editor?.chain().focus().toggleBold().run()}
+          className={cn(
+            "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+            "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
+            "transition-colors",
+          )}
+          aria-label="Italic"
+        >
+          <BoldIcon />
+        </Toggle>
+        <Toggle
+          size="sm"
+          pressed={isUnderlineActive}
+          onPressedChange={() =>
+            editor?.chain().focus().toggleUnderline().run()
+          }
+          className={cn(
+            "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+            "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
+            "transition-colors",
+          )}
+          aria-label="Italic"
+        >
+          <UnderlineIcon />
         </Toggle>
 
         <Toggle
@@ -166,7 +213,7 @@ export default function Editor({ onDone, className }: EditorProps) {
 
         <Button
           variant="secondary"
-          onClick={onDone}
+          onClick={saveText}
           className="px-6 py-4 flex gap-2"
         >
           DONE

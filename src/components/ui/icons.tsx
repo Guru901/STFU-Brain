@@ -145,6 +145,42 @@ export function ItalicsIcon() {
   );
 }
 
+export function BoldIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M2 0.5H5.5C6.88 0.5 8 1.62 8 3C8 3.74 7.67 4.41 7.15 4.87C7.94 5.35 8.5 6.22 8.5 7.2C8.5 8.74 7.24 10 5.7 10H2V0.5ZM3.5 4.2H5.5C6.05 4.2 6.5 3.75 6.5 3.2C6.5 2.65 6.05 2.2 5.5 2.2H3.5V4.2ZM3.5 8.3H5.7C6.35 8.3 6.9 7.76 6.9 7.1C6.9 6.44 6.35 5.9 5.7 5.9H3.5V8.3Z"
+        fill="#767C79"
+        fillOpacity="0.4"
+      />
+    </svg>
+  );
+}
+
+export function UnderlineIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M2 0H3.5V4.8C3.5 5.79 4.12 6.6 5 6.6C5.88 6.6 6.5 5.79 6.5 4.8V0H8V4.8C8 6.63 6.65 8.1 5 8.1C3.35 8.1 2 6.63 2 4.8V0ZM1 9H9V10H1V9Z"
+        fill="#767C79"
+        fillOpacity="0.4"
+      />
+    </svg>
+  );
+}
+
 export function ArrowRightIcon({ size = 9, color = "#4E635A" }) {
   return (
     <svg

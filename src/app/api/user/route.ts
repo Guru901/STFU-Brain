@@ -1,3 +1,5 @@
+import { db } from "@/db";
+import { usersTable } from "@/db/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -51,6 +53,6 @@ export async function POST(req: NextRequest) {
 
 async function saveUser(name: string, codes: string[]) {
   const codeString = codes.join("||");
-  const user = { name, codes: codeString };
-  console.log(user);
+  const user = { name, code: codeString };
+  await db.insert(usersTable).values(user);
 }
