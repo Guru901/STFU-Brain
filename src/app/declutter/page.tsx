@@ -3,7 +3,12 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRightIcon, WorryIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +19,18 @@ import { useState } from "react";
 import { useMutation, useQueries } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
+import { Color } from "@tiptap/extension-color";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { cn } from "@/lib/utils";
+import {
+  BoldIcon,
+  ColorIcon,
+  ItalicsIcon,
+  ListIcon,
+} from "@/components/ui/icons";
 
 export type Task = {
   id: string;
@@ -30,6 +47,19 @@ const worryCardClasses = [
   "rounded-t-4xl rounded-br-4xl rounded-bl-xl",
   "rounded-tl-2xl rounded-tr-[48px] rounded-b-4xl",
   "rounded-l-[48px] rounded-r-2xl",
+];
+
+const COLORS = [
+  { label: "Default", value: null },
+  { label: "Slate", value: "#475569" },
+  { label: "Rose", value: "#e11d48" },
+  { label: "Orange", value: "#ea580c" },
+  { label: "Amber", value: "#d97706" },
+  { label: "Emerald", value: "#059669" },
+  { label: "Teal", value: "#0d9488" },
+  { label: "Sky", value: "#0284c7" },
+  { label: "Violet", value: "#7c3aed" },
+  { label: "Pink", value: "#db2777" },
 ];
 
 function TasksSkeleton() {
@@ -99,7 +129,6 @@ function TaskDialog({
     mutationKey: ["mark-task-as-complete"],
     mutationFn: async (taskId: string) => {
       const response = await fetch("/api/task/complete/" + taskId);
-
       if (!response.ok) {
         toast.error("Failed to mark task as complete");
       }
@@ -112,10 +141,6 @@ function TaskDialog({
       toast.error("Failed to mark task as complete");
     },
   });
-
-  async function markTaskAsComplete(taskId: string) {
-    await markAsCompletedMutation.mutateAsync(taskId);
-  }
 
   if (!task) return null;
 
@@ -157,7 +182,9 @@ function TaskDialog({
           <div className="flex flex-col gap-3 pt-2">
             <Button
               variant={"secondary"}
-              onClick={async () => await markTaskAsComplete(task.id)}
+              onClick={async () =>
+                await markAsCompletedMutation.mutateAsync(task.id)
+              }
               disabled={markAsCompletedMutation.isPending ?? task.completed}
               className="w-full p-5 rounded-2xl text-left transition-all flex items-center justify-between group"
             >
@@ -189,9 +216,178 @@ function TaskDialog({
   );
 }
 
-type AddThoughtFormValues = {
-  content: string;
-};
+function AddThoughtEditor({
+  onSave,
+  isPending,
+  onDismiss,
+}: {
+  onSave: (html: string) => void;
+  isPending: boolean;
+  onDismiss: () => void;
+}) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TextStyle,
+      Color,
+      Placeholder.configure({
+        placeholder: "What's floating around in your head...",
+      }),
+    ],
+    content: "",
+    immediatelyRender: false,
+    autofocus: true,
+  });
+
+  const isItalicActive = editor?.isActive("italic") ?? false;
+  const isBoldActive = editor?.isActive("bold") ?? false;
+  const isBulletActive = editor?.isActive("bulletList") ?? false;
+  const currentColor = editor?.getAttributes("textStyle").color ?? null;
+
+  return (
+    <div className="flex flex-col gap-0">
+      {/* Editor area */}
+      <div className="bg-white rounded-2xl p-6 relative min-h-52">
+        <div className="w-0.5 h-2/3 absolute left-0 top-1/6 bg-muted-foreground rounded-full" />
+        <EditorContent
+          editor={editor}
+          className={cn(
+            "[&_.ProseMirror]:outline-none",
+            "[&_.ProseMirror]:min-h-40",
+            "[&_.ProseMirror]:text-lg",
+            "[&_.ProseMirror]:font-light",
+            "[&_.ProseMirror]:text-slate-700",
+            "[&_.ProseMirror]:leading-relaxed",
+            "[&_.ProseMirror_ul]:list-disc",
+            "[&_.ProseMirror_ul]:pl-6",
+            "[&_.ProseMirror_ol]:list-decimal",
+            "[&_.ProseMirror_ol]:pl-6",
+            "[&_.ProseMirror_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
+            "[&_.ProseMirror_.is-editor-empty:first-child::before]:text-[#ABABAB]",
+            "[&_.ProseMirror_.is-editor-empty:first-child::before]:float-left",
+            "[&_.ProseMirror_.is-editor-empty:first-child::before]:pointer-events-none",
+            "[&_.ProseMirror_.is-editor-empty:first-child::before]:h-0",
+          )}
+        />
+      </div>
+
+      {/* Toolbar + actions */}
+      <div className="flex items-center justify-between pt-4">
+        {/* Formatting toggles */}
+        <div className="flex items-center gap-1">
+          <Toggle
+            size="sm"
+            pressed={isItalicActive}
+            onPressedChange={() => editor?.chain().focus().toggleItalic().run()}
+            className={cn(
+              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
+              "transition-colors",
+            )}
+          >
+            <ItalicsIcon />
+          </Toggle>
+
+          <Toggle
+            size="sm"
+            pressed={isBoldActive}
+            onPressedChange={() => editor?.chain().focus().toggleBold().run()}
+            className={cn(
+              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
+              "transition-colors",
+            )}
+          >
+            <BoldIcon />
+          </Toggle>
+
+          <Toggle
+            size="sm"
+            pressed={isBulletActive}
+            onPressedChange={() =>
+              editor?.chain().focus().toggleBulletList().run()
+            }
+            className={cn(
+              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
+              "transition-colors",
+            )}
+          >
+            <ListIcon />
+          </Toggle>
+
+          <Popover>
+            <PopoverTrigger
+              className={cn(
+                "h-8 w-8 p-0 rounded-md flex items-center justify-center relative",
+                "text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+                "transition-colors",
+              )}
+            >
+              <ColorIcon />
+              {currentColor && (
+                <span
+                  className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full ring-1 ring-white"
+                  style={{ backgroundColor: currentColor }}
+                />
+              )}
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-3" align="start" sideOffset={8}>
+              <p className="text-xs text-slate-400 mb-2 font-medium tracking-wide uppercase">
+                Text color
+              </p>
+              <div className="grid grid-cols-5 gap-1.5">
+                {COLORS.map(({ label, value }) => (
+                  <button
+                    key={label}
+                    aria-label={label}
+                    title={label}
+                    onClick={() => {
+                      if (value === null) {
+                        editor?.chain().focus().unsetColor().run();
+                      } else {
+                        editor?.chain().focus().setColor(value).run();
+                      }
+                    }}
+                    className={cn(
+                      "w-7 h-7 rounded-md border-2 transition-all hover:scale-110",
+                      currentColor === value
+                        ? "border-slate-500 scale-110"
+                        : "border-transparent hover:border-slate-300",
+                    )}
+                    style={{ backgroundColor: value ?? "#e2e8f0" }}
+                  />
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            onClick={onDismiss}
+            className="px-4 py-2 text-sm text-[#767C79] hover:bg-[#F2F4F2] rounded-xl"
+          >
+            Dismiss
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => onSave(editor?.getHTML() ?? "")}
+            disabled={isPending}
+            className="px-5 py-2 rounded-xl flex gap-2 items-center"
+          >
+            <span className="text-sm font-medium">
+              {isPending ? "Saving..." : "Save thought"}
+            </span>
+            <ArrowRightIcon size={12} />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AddThoughtDialog({
   open,
@@ -202,27 +398,19 @@ function AddThoughtDialog({
   onOpenChange: (open: boolean) => void;
   refetch: () => void;
 }) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<AddThoughtFormValues>();
-
   const addThoughtMutation = useMutation({
     mutationKey: ["add-random-thought"],
-    mutationFn: async (data: AddThoughtFormValues) => {
+    mutationFn: async (content: string) => {
       const response = await fetch("/api/random-thoughts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ content }),
       });
       if (!response.ok) throw new Error("Failed to add thought");
       return response.json();
     },
     onSuccess: async () => {
       await refetch();
-      reset();
       onOpenChange(false);
       toast.success("Thought captured");
     },
@@ -231,63 +419,24 @@ function AddThoughtDialog({
     },
   });
 
-  function handleOpenChange(val: boolean) {
-    if (!val) reset();
-    onOpenChange(val);
-  }
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg border-0 bg-[#F9F9F7]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden rounded-2xl border-0 bg-[#F9F9F7]">
         <div className="p-8 flex flex-col gap-6">
           <DialogHeader>
-            <DialogTitle className="text-xl font-light leading-snug text-left">
+            <DialogTitle className="text-2xl font-light leading-snug text-left">
               Capture a thought
             </DialogTitle>
+            <p className="text-sm text-[#767C79]">
+              Dump whatever's on your mind — no filter needed.
+            </p>
           </DialogHeader>
 
-          <div className="bg-white rounded-2xl p-5 relative">
-            <div className="w-0.5 h-2/3 absolute left-0 top-1/6 bg-muted-foreground rounded-full" />
-            <Textarea
-              {...register("content", {
-                required: "Thought cannot be empty",
-              })}
-              placeholder="What's on your mind..."
-              rows={4}
-              className="border-0 bg-transparent p-0 resize-none text-sm text-[#333] placeholder:text-[#ABABAB] focus-visible:ring-0 shadow-none"
-            />
-            {errors.content && (
-              <p className="text-xs text-red-400 mt-2">
-                {errors.content.message}
-              </p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Button
-              variant="secondary"
-              onClick={handleSubmit((data) =>
-                addThoughtMutation.mutateAsync(data)
-              )}
-              disabled={addThoughtMutation.isPending}
-              className="w-full p-5 rounded-2xl transition-all flex items-center justify-between"
-            >
-              <span className="font-medium text-sm">
-                {addThoughtMutation.isPending ? "Saving..." : "Save thought"}
-              </span>
-              <span className="text-[#2D5A45] text-lg">+</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              onClick={() => handleOpenChange(false)}
-              className="w-full p-5 text-start! bg-white hover:bg-[#F2F4F2] rounded-2xl justify-start! transition-all"
-            >
-              <span className="font-medium text-sm text-[#767C79]">
-                Dismiss
-              </span>
-            </Button>
-          </div>
+          <AddThoughtEditor
+            onSave={(html) => addThoughtMutation.mutateAsync(html)}
+            isPending={addThoughtMutation.isPending}
+            onDismiss={() => onOpenChange(false)}
+          />
         </div>
       </DialogContent>
     </Dialog>
@@ -305,24 +454,21 @@ export default function Declutter() {
         queryKey: ["get-tasks"],
         queryFn: async (): Promise<Task[]> => {
           const response = await fetch("/api/task");
-          const data = await response.json();
-          return data;
+          return response.json();
         },
       },
       {
         queryKey: ["get-random-thoughts"],
         queryFn: async (): Promise<RandomThought[]> => {
           const response = await fetch("/api/random-thoughts");
-          const data = await response.json();
-          return data;
+          return response.json();
         },
       },
       {
         queryKey: ["get-worries"],
         queryFn: async (): Promise<Worry[]> => {
           const response = await fetch("/api/worries");
-          const data = await response.json();
-          return data;
+          return response.json();
         },
       },
     ],
@@ -331,11 +477,6 @@ export default function Declutter() {
   const pendingTasks = tasks.data ?? [];
   const thoughts = randomThoughts.data ?? [];
   const worriesList = worries.data ?? [];
-
-  const handleTaskClick = (task: Task) => {
-    setSelectedTask(task);
-    setDialogOpen(true);
-  };
 
   return (
     <div className="p-12 h-full flex flex-col gap-16 bg-[#F9F9F7CC]">
@@ -369,7 +510,10 @@ export default function Declutter() {
               {pendingTasks.map((task) => (
                 <button
                   key={task.id}
-                  onClick={() => handleTaskClick(task)}
+                  onClick={() => {
+                    setSelectedTask(task);
+                    setDialogOpen(true);
+                  }}
                   className="p-5 bg-[#F2F4F2] flex flex-col gap-2 items-start text-left hover:bg-[#EAECE9] transition-colors w-full"
                 >
                   <p>{task.content}</p>
@@ -414,7 +558,10 @@ export default function Declutter() {
                   className="p-5 bg-[#FFFFFF] flex flex-col gap-4 rounded-xl relative"
                 >
                   <div className="w-0.5 h-2/3 absolute left-0 bg-muted-foreground" />
-                  <p>{thought.content}</p>
+                  <div
+                    className="text-sm text-slate-700 leading-relaxed [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4"
+                    dangerouslySetInnerHTML={{ __html: thought.content }}
+                  />
                   <div className="flex gap-2 items-center text-[#4E635A]">
                     <p className="font-bold">Convert</p>
                     <ArrowRightIcon size={10} />
