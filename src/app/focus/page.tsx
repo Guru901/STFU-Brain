@@ -5,10 +5,18 @@ import { CheckCircleIcon, ScheduleIcon, Texture } from "@/components/ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Task } from "../declutter/page";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-export default function FocusMode() {
+export default function FocusWrapperComponent() {
+  return (
+    <Suspense fallback={<LoadingComponent />}>
+      <FocusMode />
+    </Suspense>
+  );
+}
+
+function FocusMode() {
   const router = useRouter();
   const searchParam = useSearchParams();
   const [selectedTask, setSelectedTask] = useState<Task>();
@@ -63,15 +71,8 @@ export default function FocusMode() {
     }
   }, [searchParam, tasks]);
 
-  if (isLoading) {
-    return (
-      <main className="w-screen h-screen flex items-center justify-center bg-[#0D0F0E] text-white">
-        <p className="text-lg opacity-60 animate-pulse">
-          Loading your focus session...
-        </p>
-      </main>
-    );
-  }
+  if (isLoading) return <LoadingComponent />;
+
   return (
     <>
       <audio
@@ -158,5 +159,15 @@ export default function FocusMode() {
         </span>
       </div>
     </>
+  );
+}
+
+function LoadingComponent() {
+  return (
+    <main className="w-screen h-screen flex items-center justify-center bg-[#0D0F0E] text-white">
+      <p className="text-lg opacity-60 animate-pulse">
+        Loading your focus session...
+      </p>
+    </main>
   );
 }

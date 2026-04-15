@@ -3,6 +3,7 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRightIcon, WorryIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useMutation, useQueries } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export type Task = {
@@ -174,7 +176,112 @@ function TaskDialog({
             <Button
               variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="w-full p-5 text-start! bg-white hover:bg-[#F2F4F2] rounded-2xl justify-start!  transition-all"
+              className="w-full p-5 text-start! bg-white hover:bg-[#F2F4F2] rounded-2xl justify-start! transition-all"
+            >
+              <span className="font-medium text-sm text-[#767C79]">
+                Dismiss
+              </span>
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type AddThoughtFormValues = {
+  content: string;
+};
+
+function AddThoughtDialog({
+  open,
+  onOpenChange,
+  refetch,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  refetch: () => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<AddThoughtFormValues>();
+
+  const addThoughtMutation = useMutation({
+    mutationKey: ["add-random-thought"],
+    mutationFn: async (data: AddThoughtFormValues) => {
+      const response = await fetch("/api/random-thoughts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Failed to add thought");
+      return response.json();
+    },
+    onSuccess: async () => {
+      await refetch();
+      reset();
+      onOpenChange(false);
+      toast.success("Thought captured");
+    },
+    onError: () => {
+      toast.error("Failed to save thought");
+    },
+  });
+
+  function handleOpenChange(val: boolean) {
+    if (!val) reset();
+    onOpenChange(val);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-lg border-0 bg-[#F9F9F7]">
+        <div className="p-8 flex flex-col gap-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-light leading-snug text-left">
+              Capture a thought
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="bg-white rounded-2xl p-5 relative">
+            <div className="w-0.5 h-2/3 absolute left-0 top-1/6 bg-muted-foreground rounded-full" />
+            <Textarea
+              {...register("content", {
+                required: "Thought cannot be empty",
+              })}
+              placeholder="What's on your mind..."
+              rows={4}
+              className="border-0 bg-transparent p-0 resize-none text-sm text-[#333] placeholder:text-[#ABABAB] focus-visible:ring-0 shadow-none"
+            />
+            {errors.content && (
+              <p className="text-xs text-red-400 mt-2">
+                {errors.content.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <Button
+              variant="secondary"
+              onClick={handleSubmit((data) =>
+                addThoughtMutation.mutateAsync(data)
+              )}
+              disabled={addThoughtMutation.isPending}
+              className="w-full p-5 rounded-2xl transition-all flex items-center justify-between"
+            >
+              <span className="font-medium text-sm">
+                {addThoughtMutation.isPending ? "Saving..." : "Save thought"}
+              </span>
+              <span className="text-[#2D5A45] text-lg">+</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => handleOpenChange(false)}
+              className="w-full p-5 text-start! bg-white hover:bg-[#F2F4F2] rounded-2xl justify-start! transition-all"
             >
               <span className="font-medium text-sm text-[#767C79]">
                 Dismiss
@@ -190,6 +297,7 @@ function TaskDialog({
 export default function Declutter() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [addThoughtDialogOpen, setAddThoughtDialogOpen] = useState(false);
 
   const [tasks, randomThoughts, worries] = useQueries({
     queries: [
@@ -289,7 +397,12 @@ export default function Declutter() {
         <div className="flex flex-col w-full">
           <div className="flex items-center justify-between w-full pb-8">
             <p className="font-semibold">RANDOM THOUGHTS</p>
-            <p className="font-bold text-[#767C79] text-[24px]">+</p>
+            <button
+              onClick={() => setAddThoughtDialogOpen(true)}
+              className="font-bold text-[#767C79] text-[24px] leading-none hover:text-[#2D5A45] transition-colors cursor-pointer"
+            >
+              +
+            </button>
           </div>
           {randomThoughts.isLoading ? (
             <ThoughtsSkeleton />
@@ -342,6 +455,12 @@ export default function Declutter() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         refetch={tasks.refetch}
+      />
+
+      <AddThoughtDialog
+        open={addThoughtDialogOpen}
+        onOpenChange={setAddThoughtDialogOpen}
+        refetch={randomThoughts.refetch}
       />
     </div>
   );
