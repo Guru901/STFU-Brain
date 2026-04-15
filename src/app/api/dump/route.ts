@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const dumpSchema = z.object({
+  title: z.string(),
   content: z.string(),
 });
 
@@ -19,25 +20,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { content } = safeDump.data;
+    const { content, title } = safeDump.data;
     const codes = String(req.cookies.get("codes")?.value);
 
     await db.insert(dumpTable).values({
       codes,
       content,
+      title,
     });
 
     const res = NextResponse.json({
       success: true,
-      data: { codes },
-      message: "User saved successfully!",
+      message: "Dump saved successfully!",
     });
 
     return res;
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      message: "Error saving user",
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Error saving dump",
+      },
+      { status: 500 },
+    );
   }
 }

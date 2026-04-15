@@ -16,6 +16,7 @@ export const usersTable = pgTable("users", {
 
 export const dumpTable = pgTable("dump", {
   id: uuid().defaultRandom().primaryKey(),
+  title: varchar({ length: 255 }).notNull(),
   content: text().notNull(),
   codes: varchar({ length: 255 }).notNull().unique(),
   createdAt: timestamp().defaultNow(),
