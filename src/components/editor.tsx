@@ -92,6 +92,7 @@ export default function Editor() {
       toast.error("Something went wrong");
     },
     onSuccess: () => {
+      toast.success("Thoughts will be sorted shortly!");
       setDialogOpen(false);
       router.push("/dashboard");
     },
