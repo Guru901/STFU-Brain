@@ -6,7 +6,7 @@ import Greetings from "./greetings";
 
 export default function Dashboard() {
   return (
-    <div className="p-12 flex flex-col gap-16 bg-[#F9F9F7CC]">
+    <div className="p-12 flex flex-col gap-16">
       <div className="flex flex-col gap-2">
         <Greetings />
       </div>

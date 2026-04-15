@@ -479,8 +479,8 @@ export default function Declutter() {
   const worriesList = worries.data ?? [];
 
   return (
-    <div className="p-12 h-full flex flex-col gap-16 bg-[#F9F9F7CC]">
-      <p className="text-9xl font-extrabold text-[#DEE4E0] leading-tight tracking-tight absolute bottom-0 right-5 pointer-events-none">
+    <div className="p-12 h-full flex flex-col gap-16">
+      <p className="text-9xl font-extrabold text-[#DEE4E0] -z-10 leading-tight tracking-tight fixed bottom-0 right-5 pointer-events-none">
         FOCUS.
       </p>
       <div className="flex flex-col gap-2">
