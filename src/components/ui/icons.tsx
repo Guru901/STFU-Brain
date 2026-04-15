@@ -638,3 +638,20 @@ export function DumpsIcon() {
     </svg>
   );
 }
+
+export function AllDumpsIcon() {
+  return (
+    <svg
+      width="20"
+      height="15"
+      viewBox="0 0 20 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M13 13.5V11.5H17V13.5H13V13.5M13 5.5V3.5H20V5.5H13V5.5M13 9.5V7.5H19V9.5H13V9.5M1 3.5H0V1.5H4V0H8V1.5H12V3.5H11V12.5C11 13.05 10.8042 13.5208 10.4125 13.9125C10.0208 14.3042 9.55 14.5 9 14.5H3C2.45 14.5 1.97917 14.3042 1.5875 13.9125C1.19583 13.5208 1 13.05 1 12.5V3.5V3.5M3 3.5V12.5V12.5V12.5H9V12.5V12.5V3.5H3V3.5M3 3.5V3.5V12.5V12.5V12.5V12.5V12.5V12.5V3.5V3.5"
+        fill="#4E635A"
+      />
+    </svg>
+  );
+}

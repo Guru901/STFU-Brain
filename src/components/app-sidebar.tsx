@@ -15,11 +15,13 @@ import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  AllDumpsIcon,
   BrainIcon,
   CreateIcon,
   DashboardIcon,
   DeclutterIcon,
   DumpIcon,
+  DumpsIcon,
   FocusMode,
   TaskIcon,
 } from "./ui/icons";
@@ -113,11 +115,9 @@ export default function AppSidebar() {
             <Link
               href={"/dumps"}
               className={`flex items-center gap-4 text-md px-5 py-3
-                ${active === "/declutter" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
+                ${active === "/dumps" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
             >
-              <DeclutterIcon
-                fill={active === "/declutter" ? "#4e635a" : "#767676"}
-              />
+              <AllDumpsIcon />
               All your dumps
             </Link>
 

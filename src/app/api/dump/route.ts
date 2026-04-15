@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
     });
 
     after(() => {
-      console.log("fetch called");
       fetch(
         `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/categorize`,
         {

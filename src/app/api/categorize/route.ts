@@ -57,34 +57,32 @@ export async function POST(req: NextRequest) {
         random: string[];
       } = JSON.parse(response.text || "{}");
 
-      await db.transaction(async (tx) => {
-        if (processedData.worries.length > 0) {
-          await tx.insert(worriesTable).values(
-            processedData.worries.map((worry) => ({
-              content: worry,
-              codes,
-            })),
-          );
-        }
+      if (processedData.worries.length > 0) {
+        await db.insert(worriesTable).values(
+          processedData.worries.map((worry) => ({
+            content: worry,
+            codes,
+          })),
+        );
+      }
 
-        if (processedData.tasks.length > 0) {
-          await tx.insert(taskTable).values(
-            processedData.tasks.map((task) => ({
-              content: task,
-              codes,
-            })),
-          );
-        }
+      if (processedData.tasks.length > 0) {
+        await db.insert(taskTable).values(
+          processedData.tasks.map((task) => ({
+            content: task,
+            codes,
+          })),
+        );
+      }
 
-        if (processedData.random.length > 0) {
-          await tx.insert(randomThoughtsTable).values(
-            processedData.random.map((thought) => ({
-              content: thought,
-              codes,
-            })),
-          );
-        }
-      });
+      if (processedData.random.length > 0) {
+        await db.insert(randomThoughtsTable).values(
+          processedData.random.map((thought) => ({
+            content: thought,
+            codes,
+          })),
+        );
+      }
 
       return NextResponse.json({
         success: true,
