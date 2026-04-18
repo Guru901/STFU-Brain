@@ -15,7 +15,7 @@ import { PlusSignIcon } from "@hugeicons/core-free-icons";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  AllDumpsIcon,
+  AllEntriesIcon,
   BrainIcon,
   CreateIcon,
   DashboardIcon,
@@ -111,11 +111,11 @@ export default function AppSidebar() {
             </Link>
 
             <Link
-              href={"/dumps"}
+              href={"/entries"}
               className={`flex items-center gap-4 text-md px-5 py-3
-                ${active === "/dumps" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
+                ${active === "/entries" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
             >
-              <AllDumpsIcon />
+              <AllEntriesIcon />
               All Entries
             </Link>
 

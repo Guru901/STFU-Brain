@@ -649,7 +649,7 @@ export function DumpsIcon() {
   );
 }
 
-export function AllDumpsIcon() {
+export function AllEntriesIcon() {
   return (
     <svg
       width="20"
