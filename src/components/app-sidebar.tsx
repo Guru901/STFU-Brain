@@ -225,7 +225,7 @@ export default function AppSidebar() {
               color="currentColor"
               strokeWidth={1.5}
             />
-            <span className="text-md">New Entry</span>
+            <span className="text-[16px]">New Entry</span>
           </DialogTrigger>
           <DialogContent className="max-w-3xl px-28 py-12 flex flex-col items-center w-max gap-3">
             <CreateIcon />
