@@ -47,6 +47,13 @@ export async function GET(request: NextRequest) {
             thoughts: round((thoughtsCount / total) * 100),
           };
 
+    const [firstDump] = await db
+      .select({ createdAt: dumpTable.createdAt })
+      .from(dumpTable)
+      .where(ilike(dumpTable.codes, codes))
+      .orderBy(dumpTable.createdAt)
+      .limit(1);
+
     return NextResponse.json({
       success: true,
       counts: {
@@ -54,6 +61,7 @@ export async function GET(request: NextRequest) {
         tasksCleared: tasksCount,
         thoughts: thoughtsCount,
       },
+      firstSeenAt: firstDump?.createdAt ?? null,
       percentages,
     });
   } catch (error) {

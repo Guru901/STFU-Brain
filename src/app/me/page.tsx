@@ -55,6 +55,16 @@ export default function Me() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const daysSinceJoin = profileData?.firstSeenAt
+    ? Math.floor(
+        (Date.now() - new Date(profileData.firstSeenAt).getTime()) /
+          (1000 * 60 * 60 * 24),
+      )
+    : 0;
+
+  const hasEnoughHistory = daysSinceJoin >= 14;
+  const daysRemaining = 14 - daysSinceJoin;
+
   const { data: residualEchoes, isLoading: isLoadingResidualEchoes } = useQuery(
     {
       queryKey: ["residual-echoes"],
@@ -64,6 +74,7 @@ export default function Me() {
         return res.json();
       },
       staleTime: 1000 * 60 * 5,
+      enabled: hasEnoughHistory,
     },
   );
 
@@ -75,6 +86,7 @@ export default function Me() {
       return res.json();
     },
     staleTime: 1000 * 60 * 5,
+    enabled: hasEnoughHistory,
   });
 
   useEffect(() => {
@@ -180,12 +192,22 @@ export default function Me() {
             <div className="h-16" />
             <Separator />
             <div className="h-8" />
-            <div className="flex gap-2">
-              <p className="text-[#767C79] text-[16px]">
-                Peak clarity achieved on Thursdays.
-              </p>
-              <BoltIcon />
-            </div>
+            {hasEnoughHistory ? (
+              <div className="flex gap-2">
+                <p className="text-[#767C79] text-[16px]">
+                  Peak clarity achieved on Thursdays.
+                </p>
+                <BoltIcon />
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <p className="text-[#767C79] text-[16px]">
+                  Can&apos;t show until 14 days of history. Check back in{" "}
+                  {daysRemaining}
+                  {" days"}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -195,18 +217,36 @@ export default function Me() {
             <p className="text-[16px] text-[#767C79]">Intensity Scale</p>
           </CardHeader>
           <CardContent className="py-8">
-            {isLoadingWeekly ? (
+            {isLoadingProfile ? (
               <div className="flex flex-col gap-3">
-                <div className="flex justify-evenly">
-                  {Array.from({ length: 7 }).map((_, i) => (
-                    <Skeleton key={i} className="h-8 w-8 rounded" />
-                  ))}
-                </div>
-                <div className="flex justify-evenly">
-                  {Array.from({ length: 7 }).map((_, i) => (
-                    <Skeleton key={i} className="h-8 w-8 rounded" />
-                  ))}
-                </div>
+                {[0, 1].map((wi) => (
+                  <div key={wi} className="flex justify-evenly">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-8 rounded" />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : !hasEnoughHistory ? (
+              <div className="flex flex-col items-center justify-center h-32 gap-3 text-center">
+                <p className="text-[#767C79] text-[15px] leading-relaxed">
+                  Come back in{" "}
+                  <span className="text-[#2E3432] font-medium">
+                    {daysRemaining} {daysRemaining === 1 ? "day" : "days"}
+                  </span>
+                  .<br />
+                  Patterns need time to form.
+                </p>
+              </div>
+            ) : isLoadingWeekly ? (
+              <div className="flex flex-col gap-3">
+                {[0, 1].map((wi) => (
+                  <div key={wi} className="flex justify-evenly">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-8 rounded" />
+                    ))}
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -309,53 +349,83 @@ export default function Me() {
             <CardTitle className="text-lg">RESIDUAL ECHOES</CardTitle>
           </CardHeader>
           <CardContent className="py-8">
-            <div className="flex flex-col divide-y divide-[#E8EAE8]">
-              {isLoadingResidualEchoes
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between py-6"
-                    >
-                      <div className="flex items-center gap-5">
-                        <Skeleton className="w-5 h-5 rounded" />
-                        <Skeleton className="w-48 h-5 rounded" />
-                      </div>
-                      <Skeleton className="w-16 h-6 rounded-sm" />
+            {isLoadingProfile ? (
+              <div className="flex flex-col divide-y divide-[#E8EAE8]">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-6"
+                  >
+                    <div className="flex items-center gap-5">
+                      <Skeleton className="w-5 h-5 rounded" />
+                      <Skeleton className="w-48 h-5 rounded" />
                     </div>
-                  ))
-                : echoItems.map(({ text, type }, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between py-6"
-                    >
-                      <div className="flex items-center gap-5">
-                        <svg
-                          width="22"
-                          height="22"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#888"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M17 1l4 4-4 4" />
-                          <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                          <path d="M7 23l-4-4 4-4" />
-                          <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-                        </svg>
-                        <span className="text-[18px] text-[#1C1C1C] font-light">
-                          {text}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-[11px] font-medium tracking-widest px-3 py-1 rounded-sm ${tagStyles[type]}`}
+                    <Skeleton className="w-16 h-6 rounded-sm" />
+                  </div>
+                ))}
+              </div>
+            ) : !hasEnoughHistory ? (
+              <div className="flex flex-col items-center justify-center h-32 gap-3 text-center">
+                <p className="text-[#767C79] text-[15px] leading-relaxed">
+                  Not enough data yet.
+                  <br />
+                  <span className="text-[#2E3432] font-medium">
+                    {daysRemaining} {daysRemaining === 1 ? "day" : "days"}
+                  </span>{" "}
+                  until echoes surface.
+                </p>
+              </div>
+            ) : isLoadingResidualEchoes ? (
+              <div className="flex flex-col divide-y divide-[#E8EAE8]">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-6"
+                  >
+                    <div className="flex items-center gap-5">
+                      <Skeleton className="w-5 h-5 rounded" />
+                      <Skeleton className="w-48 h-5 rounded" />
+                    </div>
+                    <Skeleton className="w-16 h-6 rounded-sm" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col divide-y divide-[#E8EAE8]">
+                {echoItems.map(({ text, type }, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-6"
+                  >
+                    <div className="flex items-center gap-5">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#888"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        {type}
+                        <path d="M17 1l4 4-4 4" />
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                        <path d="M7 23l-4-4 4-4" />
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                      </svg>
+                      <span className="text-[18px] text-[#1C1C1C] font-light">
+                        {text}
                       </span>
                     </div>
-                  ))}
-            </div>
+                    <span
+                      className={`text-[11px] font-medium tracking-widest px-3 py-1 rounded-sm ${tagStyles[type]}`}
+                    >
+                      {type}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
