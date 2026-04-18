@@ -151,7 +151,7 @@ function TasksEmpty() {
   );
 }
 
-function ThoughtsEmpty() {
+function ThoughtsEmpty(onClick: { onClick: () => void }) {
   return (
     <div className="p-8 bg-white rounded-xl relative flex flex-col gap-3 items-center">
       <div className="w-0.5 h-2/3 absolute left-0 top-1/6 bg-muted-foreground/30 rounded-full" />
@@ -161,7 +161,10 @@ function ThoughtsEmpty() {
         Hit <strong className="text-[#4E635A]">+</strong> to capture whatever's
         on your mind — no filter needed.
       </p>
-      <div className="flex gap-1.5 items-center text-[#4E635A] text-xs font-bold opacity-50 mt-1">
+      <div
+        className="flex gap-1.5 items-center text-[#4E635A] text-xs font-bold opacity-50 mt-1 cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={onClick.onClick}
+      >
         <span>Add a thought</span>
         <ArrowRightIcon size={10} />
       </div>
@@ -630,7 +633,7 @@ export default function Declutter() {
           {randomThoughts.isLoading ? (
             <ThoughtsSkeleton />
           ) : thoughts.length === 0 ? (
-            <ThoughtsEmpty />
+            <ThoughtsEmpty onClick={() => setAddThoughtDialogOpen(true)} />
           ) : (
             <div className="flex flex-col gap-6">
               {thoughts.map((thought) => (

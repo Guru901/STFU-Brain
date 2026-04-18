@@ -118,7 +118,7 @@ export default function AppSidebar() {
                 ${active === "/dumps" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
             >
               <AllDumpsIcon />
-              All your dumps
+              All Entries
             </Link>
 
             {/* Focus Mode — opens dialog instead of navigating */}
