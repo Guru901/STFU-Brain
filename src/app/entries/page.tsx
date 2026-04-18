@@ -1,6 +1,123 @@
+"use client";
 import { DumpsIcon } from "@/components/ui/icons";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import DOMPurify from "isomorphic-dompurify";
+
+type Dump = {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+};
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  const today = new Date();
+  const isToday = date.toDateString() === today.toDateString();
+  return {
+    label: isToday ? "TODAY" : null,
+    full: date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }),
+    short: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    time: date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  };
+}
+
+function getPreview(html: string) {
+  const withBreaks = html.replace(/<\/(p|div|h[1-6]|li)>/gi, "\n");
+  const clean = DOMPurify.sanitize(withBreaks, { ALLOWED_TAGS: [] });
+  return clean
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+}
+
+function getShortPreview(html: string) {
+  const withBreaks = html.replace(/<\/(p|div|h[1-6]|li)>/gi, " · ");
+  const clean = DOMPurify.sanitize(withBreaks, { ALLOWED_TAGS: [] });
+  return clean.replace(/\s+/g, " ").trim().slice(0, 120);
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-6xl mx-auto w-full flex gap-8">
+      <div className="max-w-2xl w-full bg-white p-10 flex flex-col gap-6 rounded-xl">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+        <Skeleton className="h-20 w-full" />
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-8 flex-1">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="bg-[#F2F4F2] p-8 flex flex-col gap-3 rounded-xl"
+          >
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OlderSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Skeleton className="h-7 w-40" />
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="w-full bg-white p-6 flex items-center gap-12 rounded-xl"
+        >
+          <Skeleton className="h-4 w-14" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Dumps() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["dumps"],
+    queryFn: async () => {
+      const res = await fetch("/api/dump/newer");
+      if (!res.ok) throw new Error("Failed to fetch dumps");
+      return res.json();
+    },
+  });
+
+  const { data: olderData, isLoading: olderLoading } = useQuery({
+    queryKey: ["dumps-older"],
+    queryFn: async () => {
+      const res = await fetch("/api/dump/older");
+      if (!res.ok) throw new Error("Failed to fetch older dumps");
+      return res.json();
+    },
+  });
+
+  const dumps: Dump[] = data?.dumps ?? [];
+  const older: Dump[] = olderData?.dumps ?? [];
+  const [first, ...rest] = dumps;
+
   return (
     <div className="p-16 min-h-screen flex flex-col gap-24">
       <div className="flex justify-between items-end">
@@ -16,81 +133,84 @@ export default function Dumps() {
         </div>
         <DumpsIcon />
       </div>
+
       <div className="max-w-6xl mx-auto w-full h-full flex flex-col justify-between gap-8">
-        <div className="flex justify-between gap-8">
-          <div className="max-w-2xl h-full bg-white p-10 flex flex-col gap-6 rounded-xl">
-            <div>
-              <p className="text-[16px] font-semibold text-primary">TODAY</p>
-              <p className="text-[16px] font-semibold text-[#767C79]">
-                October 24, 2023 • 10:14 AM
-              </p>
-            </div>
-            <div>
-              <h2 className="text-3xl font-semibold">
-                The lingering anxiety about next Tuesday&apos;s project delivery
-                and the weird dream about the giant cat.
-              </h2>
-            </div>
-            <div className="flex flex-col gap-4 text-[16px] text-[#767C79]">
-              <p>
-                It started with a small thought about the presentation slides.
-                Then it spiraled into whether I had enough coffee beans for the
-                morning. Why does the brain do this at 3 AM? The cat in the
-                dream was wearing a tuxedo. I think it represents my boss, or
-                maybe just a cat in a tuxedo.
-              </p>
-              <p>
-                I&apos;m letting go of the need for perfection. The slides are
-                90% there. That is enough. Peace is better than a perfect font
-                choice.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-8">
-            <div className="bg-[#F2F4F2] p-8 h-full flex flex-col gap-3 rounded-xl">
-              <div>
-                <p className="text-[16px] font-semibold text-primary">TODAY</p>
-              </div>
-              <div>
-                <p className="font-bold text-lg">
-                  Grocery list & existential dread
-                </p>
-              </div>
-              <div className="flex flex-col gap-4 text-[16px] text-[#767C79]">
-                <p>
-                  Milk, eggs, flour. Why am I here? Are we all just cosmic dust
-                  floating in a void? Also…
-                </p>
-              </div>
-            </div>
-            <div className="bg-[#F2F4F2] p-8 h-full flex flex-col gap-3 rounded-xl">
-              <div>
-                <p className="text-[16px] font-semibold text-primary">TODAY</p>
-              </div>
-              <div>
-                <p className="font-bold text-lg">
-                  Grocery list & existential dread
-                </p>
-              </div>
-              <div className="flex flex-col gap-4 text-[16px] text-[#767C79]">
-                <p>
-                  Milk, eggs, flour. Why am I here? Are we all just cosmic dust
-                  floating in a void? Also…
-                </p>
-              </div>
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className="flex justify-between gap-8 items-stretch">
+            {first &&
+              (() => {
+                const d = formatDate(first.createdAt);
+                return (
+                  <Link
+                    href={`/entry/${first.id}`}
+                    className="max-w-2xl flex-1 bg-white p-10 flex flex-col gap-6 rounded-xl"
+                  >
+                    <div>
+                      {d.label && (
+                        <p className="text-[16px] font-semibold text-primary">
+                          {d.label}
+                        </p>
+                      )}
+                      <p className="text-[16px] font-semibold text-[#767C79]">
+                        {d.full} • {d.time}
+                      </p>
+                    </div>
+                    <h2 className="text-3xl font-semibold">{first.title}</h2>
+                    <p className="text-[16px] text-[#767C79] whitespace-pre-line leading-relaxed line-clamp-[12]">
+                      {getPreview(first.content)}
+                    </p>
+                  </Link>
+                );
+              })()}
+
+            <div className="flex flex-col gap-8 flex-1">
+              {rest.map((dump) => {
+                const d = formatDate(dump.createdAt);
+                return (
+                  <Link
+                    key={dump.id}
+                    href={`/entry/${dump.id}`}
+                    className="bg-[#F2F4F2] p-8 flex-1 flex flex-col gap-3 rounded-xl"
+                  >
+                    {d.label && (
+                      <p className="text-[16px] font-semibold text-primary">
+                        {d.label}
+                      </p>
+                    )}
+                    <p className="font-bold text-lg">{dump.title}</p>
+                    <p className="text-[16px] text-[#767C79]">
+                      {getShortPreview(dump.content)}…
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-4">
-          <h3 className="text-2xl font-bold mb-2">Older entries</h3>
-          <div className="w-full bg-white p-6 flex items-center justify-start gap-12 rounded-xl cursor-pointer">
-            <p className="text-[#767676]">Oct 19</p>
-            <div className="w-2 h-2 rounded-full bg-[#767676]"></div>
-            <p className="font-semibold">
-              Unnecessary guilt about not calling back immediately.
-            </p>
+        )}
+
+        {olderLoading ? (
+          <OlderSkeleton />
+        ) : older.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-2xl font-bold mb-2">Older entries</h3>
+            {older.map((dump) => {
+              const d = formatDate(dump.createdAt);
+              return (
+                <Link
+                  key={dump.id}
+                  href={`/entry/${dump.id}`}
+                  className="w-full bg-white p-6 flex items-center justify-start gap-12 rounded-xl"
+                >
+                  <p className="text-[#767676]">{d.short}</p>
+                  <div className="w-2 h-2 rounded-full bg-[#767676]" />
+                  <p className="font-semibold">{dump.title}</p>
+                </Link>
+              );
+            })}
           </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );
