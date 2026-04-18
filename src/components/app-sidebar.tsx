@@ -21,7 +21,6 @@ import {
   DashboardIcon,
   DeclutterIcon,
   DumpIcon,
-  DumpsIcon,
   FocusMode,
   TaskIcon,
 } from "./ui/icons";
@@ -29,7 +28,6 @@ import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Separator } from "./ui/separator";
 import { useQuery } from "@tanstack/react-query";
 
-// Replace with your actual task type + fetch
 type Task = { id: string; content: string; priority: string };
 
 export default function AppSidebar() {
@@ -155,7 +153,7 @@ export default function AppSidebar() {
                 <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
                   {!tasks || tasks?.length === 0 ? (
                     <p className="text-[#767C79] text-sm text-center py-8">
-                      No pending tasks. You're all clear 🌿
+                      No pending tasks. You&apos;re all clear 🌿
                     </p>
                   ) : (
                     tasks?.map((task) => {
