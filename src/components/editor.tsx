@@ -1,10 +1,12 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
+import Underline from "@tiptap/extension-underline";
+import { Extension } from "@tiptap/core";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import {
@@ -17,8 +19,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
@@ -29,11 +36,60 @@ import {
   ListIcon,
   UnderlineIcon,
 } from "./ui/icons";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ChevronDown } from "@hugeicons/core-free-icons";
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    fontSize: {
+      setFontSize: (size: string) => ReturnType;
+      unsetFontSize: () => ReturnType;
+    };
+  }
+}
+
+const FontSize = Extension.create({
+  name: "fontSize",
+  addOptions() {
+    return { types: ["textStyle"] };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => element.style.fontSize || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (size: string) =>
+        ({ chain }) =>
+          chain().setMark("textStyle", { fontSize: size }).run(),
+      unsetFontSize:
+        () =>
+        ({ chain }) =>
+          chain().setMark("textStyle", { fontSize: null }).run(),
+    };
+  },
+});
+
+// ─── Constants ───────────────────────────────────────────────────────────────
 
 const COLORS = [
   { label: "Default", value: null },
@@ -48,6 +104,15 @@ const COLORS = [
   { label: "Pink", value: "#db2777" },
 ];
 
+const FONT_SIZES = [
+  { label: "Small", value: "0.875rem" },
+  { label: "Normal", value: "1.5rem" }, // matches the default 2xl
+  { label: "Large", value: "2rem" },
+  { label: "Huge", value: "2.75rem" },
+];
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export default function Editor() {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -58,6 +123,8 @@ export default function Editor() {
       StarterKit,
       TextStyle,
       Color,
+      Underline,
+      FontSize,
       Placeholder.configure({
         placeholder: "Start typing your chaos here...",
       }),
@@ -66,11 +133,37 @@ export default function Editor() {
     immediatelyRender: false,
   });
 
-  const isItalicActive = editor?.isActive("italic") ?? false;
-  const isBoldActive = editor?.isActive("bold") ?? false;
-  const isUnderlineActive = editor?.isActive("underline") ?? false;
-  const isBulletActive = editor?.isActive("bulletList") ?? false;
-  const currentColor = editor?.getAttributes("textStyle").color ?? null;
+  // ✅ useEditorState re-renders the component on every selection/content change
+  const editorState = useEditorState({
+    editor,
+    selector: (ctx) => ({
+      isBold: ctx.editor?.isActive("bold") ?? false,
+      isItalic: ctx.editor?.isActive("italic") ?? false,
+      isUnderline: ctx.editor?.isActive("underline") ?? false,
+      isBullet: ctx.editor?.isActive("bulletList") ?? false,
+      currentColor: ctx.editor?.getAttributes("textStyle").color ?? null,
+      currentFontSize: ctx.editor?.getAttributes("textStyle").fontSize ?? null,
+    }),
+  });
+
+  const {
+    isBold,
+    isItalic,
+    isUnderline,
+    isBullet,
+    currentColor,
+    currentFontSize,
+  } = editorState ?? {
+    isBold: false,
+    isItalic: false,
+    isUnderline: false,
+    isBullet: false,
+    currentColor: null,
+    currentFontSize: null,
+  };
+
+  const activeFontLabel =
+    FONT_SIZES.find((f) => f.value === currentFontSize)?.label ?? "Normal";
 
   useEffect(() => {
     editor?.commands.focus();
@@ -83,14 +176,9 @@ export default function Editor() {
         method: "POST",
         body: JSON.stringify({ content: text, title }),
       });
-
-      if (!response.ok) {
-        toast.error("Something went wrong");
-      }
+      if (!response.ok) throw new Error("Failed");
     },
-    onError: () => {
-      toast.error("Something went wrong");
-    },
+    onError: () => toast.error("Something went wrong"),
     onSuccess: () => {
       toast.success("Thoughts will be sorted shortly!");
       setDialogOpen(false);
@@ -103,9 +191,13 @@ export default function Editor() {
     saveDumpMutation.mutate();
   };
 
-  useHotkeys("shift+enter", () => {
-    setDialogOpen(true);
-  });
+  useHotkeys("shift+enter", () => setDialogOpen(true));
+
+  const toggleClass = cn(
+    "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+    "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
+    "transition-colors",
+  );
 
   return (
     <>
@@ -135,7 +227,7 @@ export default function Editor() {
               <Button
                 variant="ghost"
                 onClick={() => setDialogOpen(false)}
-                disabled={saveDumpMutation.isPending || title.length === 0}
+                disabled={saveDumpMutation.isPending}
                 className="text-[#767C79] py-2 px-4"
               >
                 Cancel
@@ -174,15 +266,50 @@ export default function Editor() {
 
         <div className="flex items-center justify-end gap-2 px-6 py-4">
           <p className="text-sm text-[#767676]">Press Shift+Return to submit</p>
+
+          {/* Font Size Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <button
+                className={cn(
+                  "h-8 px-2 rounded-md flex items-center gap-1",
+                  "text-slate-400 hover:text-slate-600 hover:bg-slate-100",
+                  "text-xs font-medium transition-colors",
+                )}
+              >
+                {activeFontLabel}
+                <HugeiconsIcon icon={ChevronDown} className="w-3 h-3" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={8}>
+              {FONT_SIZES.map(({ label, value }) => (
+                <DropdownMenuItem
+                  key={label}
+                  onClick={() => {
+                    if (currentFontSize === value) {
+                      editor?.chain().focus().unsetFontSize().run();
+                    } else {
+                      editor?.chain().focus().setFontSize(value).run();
+                    }
+                  }}
+                  className={cn(
+                    "cursor-pointer",
+                    currentFontSize === value && "text-teal-600 font-medium",
+                  )}
+                >
+                  <span style={{ fontSize: value }}>{label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <div className="w-px h-5 bg-slate-200 mx-1" />
+
           <Toggle
             size="sm"
-            pressed={isItalicActive}
+            pressed={isItalic}
             onPressedChange={() => editor?.chain().focus().toggleItalic().run()}
-            className={cn(
-              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
-              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
-              "transition-colors",
-            )}
+            className={toggleClass}
             aria-label="Italic"
           >
             <ItalicsIcon />
@@ -190,13 +317,9 @@ export default function Editor() {
 
           <Toggle
             size="sm"
-            pressed={isBoldActive}
+            pressed={isBold}
             onPressedChange={() => editor?.chain().focus().toggleBold().run()}
-            className={cn(
-              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
-              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
-              "transition-colors",
-            )}
+            className={toggleClass}
             aria-label="Bold"
           >
             <BoldIcon />
@@ -204,15 +327,11 @@ export default function Editor() {
 
           <Toggle
             size="sm"
-            pressed={isUnderlineActive}
+            pressed={isUnderline}
             onPressedChange={() =>
               editor?.chain().focus().toggleUnderline().run()
             }
-            className={cn(
-              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
-              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
-              "transition-colors",
-            )}
+            className={toggleClass}
             aria-label="Underline"
           >
             <UnderlineIcon />
@@ -220,15 +339,11 @@ export default function Editor() {
 
           <Toggle
             size="sm"
-            pressed={isBulletActive}
+            pressed={isBullet}
             onPressedChange={() =>
               editor?.chain().focus().toggleBulletList().run()
             }
-            className={cn(
-              "h-8 w-8 p-0 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100",
-              "data-[state=on]:bg-teal-50 data-[state=on]:text-teal-600",
-              "transition-colors",
-            )}
+            className={toggleClass}
             aria-label="Bullet list"
           >
             <ListIcon />
