@@ -1,5 +1,4 @@
 "use client";
-
 import { getCookie } from "cookies-next";
 import { useEffect, useState } from "react";
 
@@ -9,15 +8,20 @@ export function useUser() {
   const [avatar, setAvatar] = useState("");
 
   useEffect(() => {
-    if (user && codes && !avatar.length) {
-      const avatar = String(localStorage.getItem("avatar"));
-      setAvatar(avatar);
+    if (user && codes) {
+      const stored = localStorage.getItem("avatar");
+      if (stored) setAvatar(stored);
     }
-  }, [avatar]);
+  }, []);
+
+  // Expose setter so pages can update state + localStorage together
+  const updateAvatar = (b64: string) => {
+    localStorage.setItem("avatar", b64);
+    setAvatar(b64);
+  };
 
   if (user && codes) {
-    return { user, codes, avatar };
+    return { user, codes, avatar: avatar || null, updateAvatar };
   }
-
-  return { user: null, codes: null, avatar: null };
+  return { user: null, codes: null, avatar: null, updateAvatar };
 }

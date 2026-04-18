@@ -42,8 +42,7 @@ const tagStyles: Record<string, string> = {
 };
 
 export default function Me() {
-  const { user, avatar } = useUser();
-  const [localAvatar, setLocalAvatar] = useState("");
+  const { user, avatar, updateAvatar } = useUser();
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,8 +50,7 @@ export default function Me() {
     const reader = new FileReader();
     reader.onload = () => {
       const b64 = reader.result as string;
-      setLocalAvatar(b64);
-      localStorage.setItem("avatar", b64);
+      updateAvatar(b64);
     };
     reader.readAsDataURL(file);
   };
@@ -66,10 +64,10 @@ export default function Me() {
           htmlFor="avatar-upload"
           className="relative group cursor-pointer rounded-xl overflow-hidden max-w-72 w-72 h-72 border border-dashed border-[#C0C5C2] bg-[#F5F5F3] flex items-center justify-center"
         >
-          {localAvatar.length > 0 || avatar ? (
+          {avatar ? (
             <>
               <img
-                src={avatar ?? localAvatar}
+                src={avatar}
                 alt="avatar"
                 className="w-full h-full object-cover"
               />
