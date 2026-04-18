@@ -1,9 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useUser } from "@/lib/useUser";
 
 export default function Greetings() {
   const { user } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex flex-col gap-2">

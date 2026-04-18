@@ -1,3 +1,6 @@
+import { useUser } from "@/lib/useUser";
+import Image from "next/image";
+
 export function DashboardIcon({ fill = "" }) {
   return (
     <svg
@@ -79,7 +82,10 @@ export function SearchIcon({ className = "" }) {
 }
 
 export function UserIcon() {
-  return (
+  const { avatar } = useUser();
+  const hasAvatar = avatar && avatar !== "null" && avatar !== "undefined";
+
+  return !hasAvatar ? (
     <svg
       width="19"
       height="19"
@@ -92,6 +98,8 @@ export function UserIcon() {
         fill="#767C79"
       />
     </svg>
+  ) : (
+    <img src={avatar} className="w-6 h-6" alt="avatar" />
   );
 }
 

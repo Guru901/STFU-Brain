@@ -153,7 +153,7 @@ export default function AppSidebar() {
                 <Separator />
 
                 <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
-                  {tasks?.length === 0 ? (
+                  {!tasks || tasks?.length === 0 ? (
                     <p className="text-[#767C79] text-sm text-center py-8">
                       No pending tasks. You're all clear 🌿
                     </p>

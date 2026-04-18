@@ -28,16 +28,6 @@ export default function AppNavbar() {
         <h1 className="text-md">MONDAY, OCT 24</h1>
       </div>
       <div className="flex gap-6 items-center">
-        <Button
-          variant={"destructive"}
-          className={"py-2 px-4"}
-          onClick={() => {
-            deleteCookie("user");
-            deleteCookie("codes");
-          }}
-        >
-          Clear Cookies
-        </Button>
         <Search />
         <Link href={"/me"}>
           <UserIcon />

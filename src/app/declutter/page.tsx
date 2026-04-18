@@ -114,6 +114,87 @@ function WorriesSkeleton() {
   );
 }
 
+function TasksEmpty() {
+  return (
+    <div className="flex flex-col gap-3 items-center py-10 px-5 bg-[#F2F4F2]">
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 40 40"
+        fill="none"
+        className="opacity-25"
+      >
+        <rect x="6" y="10" width="26" height="3" rx="1.5" fill="#4E635A" />
+        <rect x="6" y="18" width="20" height="3" rx="1.5" fill="#4E635A" />
+        <rect x="6" y="26" width="14" height="3" rx="1.5" fill="#4E635A" />
+        <circle
+          cx="30"
+          cy="29"
+          r="8"
+          fill="#F2F4F2"
+          stroke="#4E635A"
+          strokeWidth="2"
+        />
+        <path
+          d="M27 29l2 2 4-4"
+          stroke="#4E635A"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <p className="text-sm font-medium text-center">All clear</p>
+      <p className="text-xs text-[#767C79] text-center leading-relaxed">
+        No pending tasks. Dump a thought and it might become one.
+      </p>
+    </div>
+  );
+}
+
+function ThoughtsEmpty() {
+  return (
+    <div className="p-8 bg-white rounded-xl relative flex flex-col gap-3 items-center">
+      <div className="w-0.5 h-2/3 absolute left-0 top-1/6 bg-muted-foreground/30 rounded-full" />
+      <span className="text-2xl opacity-20">💭</span>
+      <p className="text-sm font-medium text-center">Nothing floating around</p>
+      <p className="text-xs text-[#767C79] text-center leading-relaxed">
+        Hit <strong className="text-[#4E635A]">+</strong> to capture whatever's
+        on your mind — no filter needed.
+      </p>
+      <div className="flex gap-1.5 items-center text-[#4E635A] text-xs font-bold opacity-50 mt-1">
+        <span>Add a thought</span>
+        <ArrowRightIcon size={10} />
+      </div>
+    </div>
+  );
+}
+
+function WorriesEmpty() {
+  const ghostLabels = ["quiet here…", "no worries yet", "keep it that way"];
+  return (
+    <div className="flex flex-col gap-4">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className={`p-7 bg-linear-to-r from-[#FFFFFF] to-[#F2F4F2] flex flex-col gap-2.5 ${worryCardClasses[i]}`}
+        >
+          <div
+            className="h-2.5 rounded bg-[#DEE4E0]"
+            style={{ width: `${[85, 70, 90][i]}%` }}
+          />
+          <div
+            className="h-2.5 rounded bg-[#DEE4E0]"
+            style={{ width: `${[55, 45, 60][i]}%` }}
+          />
+          <span className="text-[11px] text-[#A8B4AE] italic mt-1">
+            {ghostLabels[i]}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function TaskDialog({
   task,
   open,
@@ -246,7 +327,6 @@ function AddThoughtEditor({
 
   return (
     <div className="flex flex-col gap-0">
-      {/* Editor area */}
       <div className="bg-white rounded-2xl p-6 relative min-h-52">
         <div className="w-0.5 h-2/3 absolute left-0 top-1/6 bg-muted-foreground rounded-full" />
         <EditorContent
@@ -271,9 +351,7 @@ function AddThoughtEditor({
         />
       </div>
 
-      {/* Toolbar + actions */}
       <div className="flex items-center justify-between pt-4">
-        {/* Formatting toggles */}
         <div className="flex items-center gap-1">
           <Toggle
             size="sm"
@@ -363,7 +441,6 @@ function AddThoughtEditor({
           </Popover>
         </div>
 
-        {/* Action buttons */}
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -505,6 +582,8 @@ export default function Declutter() {
           </div>
           {tasks.isLoading ? (
             <TasksSkeleton />
+          ) : pendingTasks.length === 0 ? (
+            <TasksEmpty />
           ) : (
             <div className="flex flex-col gap-6">
               {pendingTasks.map((task) => (
@@ -550,6 +629,8 @@ export default function Declutter() {
           </div>
           {randomThoughts.isLoading ? (
             <ThoughtsSkeleton />
+          ) : thoughts.length === 0 ? (
+            <ThoughtsEmpty />
           ) : (
             <div className="flex flex-col gap-6">
               {thoughts.map((thought) => (
@@ -580,6 +661,8 @@ export default function Declutter() {
           </div>
           {worries.isLoading ? (
             <WorriesSkeleton />
+          ) : worriesList.length === 0 ? (
+            <WorriesEmpty />
           ) : (
             <div className="flex flex-col gap-6">
               {worriesList.map((worry, index) => (
