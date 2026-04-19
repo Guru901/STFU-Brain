@@ -14,43 +14,31 @@ const priorityDot: Record<string, string> = {
 };
 
 const STATE_CONFIG: Record<string, { image: string; dot: string }> = {
-  calm: {
-    image: "/calm.png",
-    dot: "bg-primary",
-  },
-  focused: {
-    image: "/focused.jpg",
-    dot: "bg-[#2E4A42]",
-  },
-  scattered: {
-    image: "/scattered.jpg",
-    dot: "bg-[#C4832A]",
-  },
-  anxious: {
-    image: "/anxious.jpg",
-    dot: "bg-[#8B5A2E]",
-  },
-  overwhelmed: {
-    image: "/overwhelmed.jpg",
-    dot: "bg-[#8B1A2F]",
-  },
-  numb: {
-    image: "/numb.jpg",
-    dot: "bg-[#B0B5B2]",
-  },
-  restless: {
-    image: "/restless.jpg",
-    dot: "bg-[#4A6B8B]",
-  },
-  reflective: {
-    image: "/reflective.jpg",
-    dot: "bg-[#6B4A8B]",
-  },
+  calm: { image: "/calm.png", dot: "bg-primary" },
+  focused: { image: "/focused.jpg", dot: "bg-[#2E4A42]" },
+  scattered: { image: "/scattered.jpg", dot: "bg-[#C4832A]" },
+  anxious: { image: "/anxious.jpg", dot: "bg-[#8B5A2E]" },
+  overwhelmed: { image: "/overwhelmed.jpg", dot: "bg-[#8B1A2F]" },
+  numb: { image: "/numb.jpg", dot: "bg-[#B0B5B2]" },
+  restless: { image: "/restless.jpg", dot: "bg-[#4A6B8B]" },
+  reflective: { image: "/reflective.jpg", dot: "bg-[#6B4A8B]" },
 };
 
-const FALLBACK_CONFIG = {
-  image: "/calm.png",
-  dot: "bg-primary",
+const FALLBACK_CONFIG = { image: "/calm.png", dot: "bg-primary" };
+
+// card bg per sensory status
+const SENSORY_BG: Record<string, string> = {
+  clear: "bg-[#F2F4F2]",
+  active: "bg-[#EAF0ED]",
+  noisy: "bg-[#DDEDFE4D]",
+  overloaded: "bg-[#FDEAEA4D]",
+};
+
+const SENSORY_STATUS_LABEL: Record<string, string> = {
+  clear: "STATUS: CLEAR",
+  active: "STATUS: ACTIVE",
+  noisy: "STATUS: NOISY",
+  overloaded: "STATUS: OVERLOADED",
 };
 
 export default function Dashboard() {
@@ -74,13 +62,28 @@ export default function Dashboard() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const mindState: {
-    id: string;
-    label: string;
-    description: string;
-  } | null = mindStateData?.data ?? null;
+  const { data: sensoryData, isLoading: isLoadingSensory } = useQuery({
+    queryKey: ["sensory-load"],
+    queryFn: async () => {
+      const res = await fetch("/api/sensory-load");
+      if (!res.ok) throw new Error("Failed to fetch sensory load");
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 2,
+  });
 
+  const mindState: { id: string; label: string; description: string } | null =
+    mindStateData?.data ?? null;
   const config = STATE_CONFIG[mindState?.id ?? "calm"] ?? FALLBACK_CONFIG;
+
+  const sensory: {
+    status: "clear" | "active" | "noisy" | "overloaded";
+    headline: string;
+    description: string;
+    score: number;
+    intensity: number;
+    counts: { dumps: number; worries: number; randoms: number; tasks: number };
+  } | null = sensoryData?.data ?? null;
 
   const tasks: {
     id: string;
@@ -131,7 +134,7 @@ export default function Dashboard() {
               </Link>
             </div>
             {isLoadingMindState ? (
-              <Skeleton className="w-66.75 h-100" />
+              <Skeleton className="w-[267px] h-[400px]" />
             ) : (
               <img
                 src={config.image}
@@ -141,22 +144,48 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Noisy card */}
-          <div className="bg-[#DDEDFE4D] max-w-[288px] p-8 pb-28 rounded-xl flex flex-col gap-2">
+          {/* Sensory Load Card */}
+          <div
+            className={`max-w-[288px] p-8 pb-28 rounded-xl flex flex-col gap-2 transition-colors duration-500 ${
+              isLoadingSensory
+                ? "bg-[#F2F4F2]"
+                : SENSORY_BG[sensory?.status ?? "clear"]
+            }`}
+          >
             <div className="flex justify-between">
               <NoisyIcon />
-              <div className={buttonVariants({ variant: "secondary" })}>
-                STATUS: NOISY
-              </div>
+              {isLoadingSensory ? (
+                <Skeleton className="w-28 h-8 rounded-full" />
+              ) : (
+                <div className={buttonVariants({ variant: "secondary" })}>
+                  {SENSORY_STATUS_LABEL[sensory?.status ?? "clear"]}
+                </div>
+              )}
             </div>
             <div className="py-4.25 flex flex-col gap-2">
-              <h3 className="font-semibold text-xl">High Sensory Input</h3>
-              <p className="text-[#4A5866CC]">
-                You&apos;ve logged 12 rapid entries today. Your mental bandwidth
-                is reaching capacity.
-              </p>
+              {isLoadingSensory ? (
+                <>
+                  <Skeleton className="w-40 h-6 rounded" />
+                  <Skeleton className="w-52 h-4 rounded" />
+                  <Skeleton className="w-44 h-4 rounded" />
+                </>
+              ) : (
+                <>
+                  <h3 className="font-semibold text-xl">{sensory?.headline}</h3>
+                  <p className="text-[#4A5866CC]">{sensory?.description}</p>
+                </>
+              )}
             </div>
-            <div className="bg-white p-4 flex items-center gap-4 rounded-xl">
+            {/* intensity bar */}
+            {!isLoadingSensory && sensory && (
+              <div className="relative h-1.5 bg-black/10 rounded-full overflow-hidden mt-1">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-700"
+                  style={{ width: `${(sensory.intensity * 100).toFixed(0)}%` }}
+                />
+              </div>
+            )}
+            <div className="bg-white p-4 flex items-center gap-4 rounded-xl mt-2">
               <BreatheIcon />
               <div>
                 <p className="text-[#52616F] font-bold text-[12px]">
@@ -172,7 +201,7 @@ export default function Dashboard() {
 
         <div className="flex gap-8">
           {/* Next tasks */}
-          <div className="col-span-12 lg:col-span-5 bg-[#F2F4F2] rounded-3xl p-10 max-w-101.5">
+          <div className="col-span-12 lg:col-span-5 bg-[#F2F4F2] rounded-3xl p-10 max-w-[406px]">
             <div className="mb-8">
               <h3 className="text-xl font-medium">Next in Declutter</h3>
             </div>
@@ -189,7 +218,7 @@ export default function Dashboard() {
                   No pending tasks. Clean slate.
                 </p>
               ) : (
-                tasks?.map((task) => (
+                tasks.map((task) => (
                   <div key={task.id} className="flex items-center gap-4">
                     <div
                       className={`w-2 h-2 rounded-full border border-primary ${priorityDot[task.priority]}`}
