@@ -8,6 +8,7 @@ const taskSchema = z.object({
   content: z.string(),
   codes: z.string(),
   context: z.string().optional(),
+  tag: z.string().optional(),
   priority: z.enum(["low", "routine", "high"]),
 });
 
@@ -23,13 +24,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { codes, content, priority, context } = safeTask.data;
+    const { codes, content, priority, context, tag } = safeTask.data;
 
     await db.insert(taskTable).values({
       content,
       codes,
       priority,
       extraContext: context,
+      tag,
     });
 
     return NextResponse.json({

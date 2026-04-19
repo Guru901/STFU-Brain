@@ -27,6 +27,7 @@ export const taskTable = pgTable("task", {
   id: uuid().defaultRandom().primaryKey(),
   content: text().notNull(),
   priority: taskPriority().notNull().default("low"),
+  tag: varchar({ length: 255 }),
   codes: varchar({ length: 255 }).notNull(),
   extraContext: text(),
   completed: boolean().default(false),

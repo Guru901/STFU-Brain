@@ -17,6 +17,7 @@ type AddTaskFormValues = {
   title: string;
   priority: string;
   note: string;
+  tag: string;
 };
 
 export default function AddTask() {
@@ -32,11 +33,12 @@ export default function AddTask() {
   });
 
   const addTaskMutation = useMutation({
-    mutationFn: async ({ note, priority, title }: AddTaskFormValues) => {
+    mutationFn: async ({ note, priority, title, tag }: AddTaskFormValues) => {
       const response = await fetch("/api/task", {
         method: "POST",
         body: JSON.stringify({
           content: title,
+          tag,
           codes,
           context: note,
           priority,
@@ -121,6 +123,12 @@ export default function AddTask() {
               type="text"
               placeholder="Any context to quiet the mind?"
               {...register("note")}
+              className="bg-transparent! h-8! border-none border-b! outline-none focus:ring-0! text-lg!"
+            />
+            <Input
+              type="text"
+              placeholder="Any tag about the task (deep work or personal)?"
+              {...register("tag")}
               className="bg-transparent! h-8! border-none border-b! outline-none focus:ring-0! text-lg!"
             />
           </CardContent>
