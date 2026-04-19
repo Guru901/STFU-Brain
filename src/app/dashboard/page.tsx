@@ -4,7 +4,6 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { BreatheIcon, NoisyIcon, ResetIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
 import Greetings from "./greetings";
 import Link from "next/link";
 
@@ -134,12 +133,10 @@ export default function Dashboard() {
             {isLoadingMindState ? (
               <Skeleton className="w-66.75 h-100" />
             ) : (
-              <Image
+              <img
                 src={config.image}
-                alt={mindState?.label ?? "Calm"}
-                width={267}
                 height={400}
-                className="object-cover"
+                className="w-[267px] h-full object-cover"
               />
             )}
           </div>
