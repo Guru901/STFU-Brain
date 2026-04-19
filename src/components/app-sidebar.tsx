@@ -16,6 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   AllEntriesIcon,
+  AllTasksIcon,
   BrainIcon,
   CreateIcon,
   DashboardIcon,
@@ -117,6 +118,15 @@ export default function AppSidebar() {
             >
               <AllEntriesIcon />
               All Entries
+            </Link>
+
+            <Link
+              href={"/tasks"}
+              className={`flex items-center gap-4 text-md px-5 py-3
+                ${active === "/tasks" ? "border-l-2 border-l-muted-foreground text-[#4E635A] font-bold rounded-[2.5px]" : "text-[#767C79] font-medium"}`}
+            >
+              <AllTasksIcon />
+              All Tasks
             </Link>
 
             {/* Focus Mode — opens dialog instead of navigating */}
