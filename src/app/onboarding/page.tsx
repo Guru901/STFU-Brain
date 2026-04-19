@@ -148,7 +148,7 @@ export default function OnBoarding() {
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto max-w-5xl my-auto w-screen h-screen gap-16">
-      <h1 className="font-extralight text-7xl">What's your name?</h1>
+      <h1 className="font-extralight text-7xl">What&apos;s your name?</h1>
       <form className="w-full" onSubmit={handleSubmit(submitForm)}>
         <div className="w-full flex items-center">
           <Input
@@ -209,8 +209,8 @@ export default function OnBoarding() {
           <div className="flex flex-col items-center gap-2 text-center">
             <h2 className="font-extralight text-4xl">Recovery Codes</h2>
             <p className="text-[#767676] text-sm max-w-sm">
-              Save these somewhere safe. You'll need them if you ever lose
-              access to your account.
+              Save these somewhere safe. You&apos;ll need them if you ever lose
+              access to your account or if you want to login in another device.
             </p>
           </div>
 
@@ -259,7 +259,7 @@ export default function OnBoarding() {
           </Button>
 
           <p className="text-[#767676] text-xs text-center">
-            These codes won't be shown again after you close this dialog.
+            These codes won&apos;t be shown again after you close this dialog.
           </p>
         </DialogContent>
       </Dialog>
@@ -347,7 +347,8 @@ export default function OnBoarding() {
           </Button>
 
           <p className="text-[#767676] text-xs text-center">
-            Can't remember any codes? You'll need to create a new account.
+            Can&apos;t remember any codes? You&apos;ll need to create a new
+            account.
           </p>
         </DialogContent>
       </Dialog>

@@ -158,7 +158,7 @@ export default function Dumps() {
                       </p>
                     </div>
                     <h2 className="text-3xl font-semibold">{first.title}</h2>
-                    <p className="text-[16px] text-[#767C79] whitespace-pre-line leading-relaxed line-clamp-[12]">
+                    <p className="text-[16px] text-[#767C79] whitespace-pre-line leading-relaxed line-clamp-12">
                       {getPreview(first.content)}
                     </p>
                   </Link>

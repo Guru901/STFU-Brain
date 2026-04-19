@@ -7,7 +7,7 @@ export default function Dump() {
       <div className="flex flex-col gap-8">
         <div>
           <p className="inline text-[#2E3432] text-7xl font-extralight">
-            What's
+            What&apos;s
           </p>
           <p className="inline text-7xl text-[#4E635AB3] font-light">
             {" "}

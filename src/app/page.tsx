@@ -83,9 +83,9 @@ export default function Home() {
                   like digital sediment in your mind.
                 </p>
                 <p>
-                  Mental fatigue isn't just about being busy—it's the friction
-                  of unorganized thought. When your brain is a junk drawer,
-                  clarity becomes an impossible luxury.
+                  Mental fatigue isn&apos;t just about being busy—it&apos;s the
+                  friction of unorganized thought. When your brain is a junk
+                  drawer, clarity becomes an impossible luxury.
                 </p>
               </div>
             </div>
@@ -98,8 +98,8 @@ export default function Home() {
               <div className="absolute inset-0 p-12 flex flex-col justify-end">
                 <div className="glass-effect bg-white/10 p-8 rounded-xl">
                   <p className="text-white text-2xl font-light italic">
-                    "The average person has 6,000 thoughts per day. Most are
-                    just noise."
+                    &quot;The average person has 6,000 thoughts per day. Most
+                    are just noise.&quot;
                   </p>
                 </div>
               </div>
@@ -190,9 +190,9 @@ export default function Home() {
                     Linguistic Alchemy
                   </h3>
                   <p className="text-on-surface-variant text-lg leading-relaxed">
-                    Our proprietary AI doesn't just categorize; it deciphers
-                    intent. It splits your brain dump into actionable tasks,
-                    persistent worries, and fleeting reflections automatically.
+                    Our AI doesn&apos;t just categorize; it deciphers intent. It
+                    splits your brain dump into actionable tasks, persistent
+                    worries, and fleeting reflections automatically.
                   </p>
                 </div>
               </div>
@@ -206,8 +206,9 @@ export default function Home() {
             The Philosophy
           </span>
           <blockquote className="text-4xl md:text-6xl font-light tracking-tight text-on-surface leading-tight mb-16">
-            "Design as a Sanctuary. We believe that the tools you use shouldn't
-            compete for your attention—they should protect it."
+            &quot;Design as a Sanctuary. We believe that the tools you use
+            shouldn&apos;t compete for your attention—they should protect
+            it.&quot;
           </blockquote>
           <div className="flex flex-col items-center">
             <img

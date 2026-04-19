@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useMutation, useQueries } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -158,8 +157,8 @@ function ThoughtsEmpty(onClick: { onClick: () => void }) {
       <span className="text-2xl opacity-20">💭</span>
       <p className="text-sm font-medium text-center">Nothing floating around</p>
       <p className="text-xs text-[#767C79] text-center leading-relaxed">
-        Hit <strong className="text-[#4E635A]">+</strong> to capture whatever's
-        on your mind — no filter needed.
+        Hit <strong className="text-[#4E635A]">+</strong> to capture
+        whatever&apos;s on your mind — no filter needed.
       </p>
       <div
         className="flex gap-1.5 items-center text-[#4E635A] text-xs font-bold opacity-50 mt-1 cursor-pointer hover:opacity-80 transition-opacity"
@@ -508,7 +507,7 @@ function AddThoughtDialog({
               Capture a thought
             </DialogTitle>
             <p className="text-sm text-[#767C79]">
-              Dump whatever's on your mind — no filter needed.
+              Dump whatever&apos;s on your mind — no filter needed.
             </p>
           </DialogHeader>
 

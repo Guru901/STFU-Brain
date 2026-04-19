@@ -4,6 +4,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { BreatheIcon, NoisyIcon, ResetIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 import Greetings from "./greetings";
 import Link from "next/link";
 
@@ -131,12 +132,14 @@ export default function Dashboard() {
               </Link>
             </div>
             {isLoadingMindState ? (
-              <Skeleton className="w-[267px] h-[400px]" />
+              <Skeleton className="w-66.75 h-100" />
             ) : (
-              <img
+              <Image
                 src={config.image}
+                alt={mindState?.label ?? "Calm"}
+                width={267}
                 height={400}
-                className="w-[267px] h-full object-cover"
+                className="object-cover"
               />
             )}
           </div>
@@ -172,7 +175,7 @@ export default function Dashboard() {
 
         <div className="flex gap-8">
           {/* Next tasks */}
-          <div className="col-span-12 lg:col-span-5 bg-[#F2F4F2] rounded-3xl p-10 max-w-[406px]">
+          <div className="col-span-12 lg:col-span-5 bg-[#F2F4F2] rounded-3xl p-10 max-w-101.5">
             <div className="mb-8">
               <h3 className="text-xl font-medium">Next in Declutter</h3>
             </div>
