@@ -99,7 +99,9 @@ export function UserIcon() {
       />
     </svg>
   ) : (
-    <Image src={avatar} alt="avatar" className="rounded-full" />
+    <div className="w-9 h-9">
+      <img src={avatar} className="w-full h-full rounded-full" alt="avatar" />
+    </div>
   );
 }
 
