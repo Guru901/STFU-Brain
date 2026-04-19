@@ -189,7 +189,7 @@ export default function Dashboard() {
                   No pending tasks. Clean slate.
                 </p>
               ) : (
-                tasks.map((task) => (
+                tasks?.map((task) => (
                   <div key={task.id} className="flex items-center gap-4">
                     <div
                       className={`w-2 h-2 rounded-full border border-primary ${priorityDot[task.priority]}`}
