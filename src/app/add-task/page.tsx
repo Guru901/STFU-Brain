@@ -74,6 +74,11 @@ export default function AddTask() {
             autoFocus
             placeholder="Write it here and let it go..."
             {...register("title", { required: true })}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                router.back();
+              }
+            }}
             className="bg-transparent! h-20! border-none border-b! outline-none focus:ring-0! text-4xl!"
           />
           <ReturnIcon />
