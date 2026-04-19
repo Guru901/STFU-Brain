@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
 
     return res;
   } catch (error) {
+    console.error(error);
     return NextResponse.json({
       success: false,
       message: "Error saving user",

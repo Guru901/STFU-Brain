@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       message: "Task saved successfully!",
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({
       success: false,
       message: "Error saving user",
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(tasks);
   } catch (error) {
+    console.error(error);
     return NextResponse.json({
       success: false,
       message: "Error fetching tasks",

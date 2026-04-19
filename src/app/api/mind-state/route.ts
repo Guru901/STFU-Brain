@@ -119,7 +119,7 @@ const computeMindState = async (codes: string): Promise<MindState> => {
     "gemini-3.1-flash-lite-preview",
   ];
 
-  let lastError: any = null;
+  let lastError = null;
 
   for (const modelId of modelQueue) {
     try {
@@ -152,6 +152,7 @@ const computeMindState = async (codes: string): Promise<MindState> => {
 
       console.log("Mind state:", matched.label);
       return matched;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       lastError = error;
       console.error(`Error with model ${modelId}:`, error);

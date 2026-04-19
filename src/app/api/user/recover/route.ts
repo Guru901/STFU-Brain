@@ -54,15 +54,10 @@ export async function POST(req: NextRequest) {
       message: "Invalid recovery codes",
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({
       success: false,
       message: "Error saving user",
     });
   }
-}
-
-async function saveUser(name: string, codes: string[]) {
-  const codeString = codes.join("||");
-  const user = { name, code: codeString };
-  await db.insert(usersTable).values(user);
 }

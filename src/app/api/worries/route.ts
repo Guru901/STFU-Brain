@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(worries);
   } catch (error) {
+    console.error(error);
     return NextResponse.json({
       success: false,
       message: "Error fetching tasks",

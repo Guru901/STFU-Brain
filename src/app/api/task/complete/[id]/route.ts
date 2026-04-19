@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { taskTable } from "@/db/schema";
-import { eq, and, ilike, DrizzleError, DrizzleQueryError } from "drizzle-orm";
+import { eq, and, ilike, DrizzleQueryError } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(

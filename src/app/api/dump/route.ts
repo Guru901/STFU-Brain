@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { dumpTable, usersTable } from "@/db/schema";
+import { dumpTable } from "@/db/schema";
 import { revalidateTag } from "next/cache";
 import { after, NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

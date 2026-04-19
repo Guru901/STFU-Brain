@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 
     const fullInput = `THOUGHTS: ${JSON.stringify(thoughts)}\nTASKS: ${JSON.stringify(tasksCleared)}\nENTRIES: ${JSON.stringify(entries)}`;
 
-    let lastError: any = null;
+    let lastError = null;
 
     for (const modelId of modelQueue) {
       try {
@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
         console.log(json);
 
         return NextResponse.json({ success: true, data: json });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         lastError = error;
         console.error(`Error with model ${modelId}:`, error);
