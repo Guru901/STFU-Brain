@@ -26,7 +26,6 @@ const STATE_CONFIG: Record<string, { image: string; dot: string }> = {
 
 const FALLBACK_CONFIG = { image: "/calm.png", dot: "bg-primary" };
 
-// card bg per sensory status
 const SENSORY_BG: Record<string, string> = {
   clear: "bg-[#F2F4F2]",
   active: "bg-[#EAF0ED]",
@@ -82,6 +81,7 @@ export default function Dashboard() {
     description: string;
     score: number;
     intensity: number;
+    recommendation: { activity: string; duration: string };
     counts: { dumps: number; worries: number; randoms: number; tasks: number };
   } | null = sensoryData?.data ?? null;
 
@@ -134,7 +134,7 @@ export default function Dashboard() {
               </Link>
             </div>
             {isLoadingMindState ? (
-              <Skeleton className="w-[267px] h-[400px]" />
+              <Skeleton className="w-66.75 h-100" />
             ) : (
               <img
                 src={config.image}
@@ -146,12 +146,13 @@ export default function Dashboard() {
 
           {/* Sensory Load Card */}
           <div
-            className={`max-w-[288px] p-8 pb-28 rounded-xl flex flex-col gap-2 transition-colors duration-500 ${
+            className={`max-w-[288px] p-8 rounded-xl flex flex-col gap-2 transition-colors duration-500 ${
               isLoadingSensory
                 ? "bg-[#F2F4F2]"
                 : SENSORY_BG[sensory?.status ?? "clear"]
             }`}
           >
+            {/* header */}
             <div className="flex justify-between">
               <NoisyIcon />
               {isLoadingSensory ? (
@@ -162,7 +163,9 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-            <div className="py-4.25 flex flex-col gap-2">
+
+            {/* headline + description */}
+            <div className="py-4 flex flex-col gap-2">
               {isLoadingSensory ? (
                 <>
                   <Skeleton className="w-40 h-6 rounded" />
@@ -172,36 +175,60 @@ export default function Dashboard() {
               ) : (
                 <>
                   <h3 className="font-semibold text-xl">{sensory?.headline}</h3>
-                  <p className="text-[#4A5866CC]">{sensory?.description}</p>
+                  <p className="text-[#4A5866CC] text-sm">
+                    {sensory?.description}
+                  </p>
                 </>
               )}
             </div>
+
             {/* intensity bar */}
-            {!isLoadingSensory && sensory && (
-              <div className="relative h-1.5 bg-black/10 rounded-full overflow-hidden mt-1">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-700"
-                  style={{ width: `${(sensory.intensity * 100).toFixed(0)}%` }}
-                />
-              </div>
+            {isLoadingSensory ? (
+              <Skeleton className="h-1.5 w-full rounded-full" />
+            ) : (
+              sensory && (
+                <div className="relative h-1.5 bg-black/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-700"
+                    style={{
+                      width: `${(sensory.intensity * 100).toFixed(0)}%`,
+                    }}
+                  />
+                </div>
+              )
             )}
-            <div className="bg-white p-4 flex items-center gap-4 rounded-xl mt-2">
-              <BreatheIcon />
-              <div>
-                <p className="text-[#52616F] font-bold text-[12px]">
-                  RECOMMENDED
-                </p>
-                <p className="text-[#2E3432] font-medium text-[14px]">
-                  Box Breathing (4m)
-                </p>
-              </div>
+
+            {/* recommendation */}
+            <div className="mt-3">
+              {isLoadingSensory ? (
+                <div className="bg-white p-4 flex items-center gap-4 rounded-xl">
+                  <Skeleton className="w-10 h-10 rounded-lg" />
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="w-20 h-3 rounded" />
+                    <Skeleton className="w-36 h-4 rounded" />
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white p-4 flex items-center gap-4 rounded-xl">
+                  <BreatheIcon />
+                  <div>
+                    <p className="text-[#52616F] font-bold text-[12px]">
+                      RECOMMENDED
+                    </p>
+                    <p className="text-[#2E3432] font-medium text-[14px]">
+                      {sensory?.recommendation.activity} (
+                      {sensory?.recommendation.duration})
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex gap-8">
           {/* Next tasks */}
-          <div className="col-span-12 lg:col-span-5 bg-[#F2F4F2] rounded-3xl p-10 max-w-[406px]">
+          <div className="col-span-12 lg:col-span-5 bg-[#F2F4F2] rounded-3xl p-10 max-w-101.5">
             <div className="mb-8">
               <h3 className="text-xl font-medium">Next in Declutter</h3>
             </div>

@@ -10,6 +10,34 @@ import { NextRequest, NextResponse } from "next/server";
 
 const NOISY_THRESHOLD = 10;
 
+const RECOMMENDATIONS: Record<
+  "clear" | "active" | "noisy" | "overloaded",
+  { activity: string; duration: string }[]
+> = {
+  clear: [
+    { activity: "Morning Pages", duration: "10m" },
+    { activity: "Free Writing", duration: "15m" },
+    { activity: "Gratitude Log", duration: "5m" },
+  ],
+  active: [
+    { activity: "Pomodoro Focus Block", duration: "25m" },
+    { activity: "Task Prioritization", duration: "10m" },
+    { activity: "Brain Dump Session", duration: "10m" },
+  ],
+  noisy: [
+    { activity: "Box Breathing", duration: "4m" },
+    { activity: "5-4-3-2-1 Grounding", duration: "5m" },
+    { activity: "Cold Water Reset", duration: "2m" },
+    { activity: "Walk Away from Screen", duration: "10m" },
+  ],
+  overloaded: [
+    { activity: "Box Breathing", duration: "4m" },
+    { activity: "Full Body Scan", duration: "8m" },
+    { activity: "Step Outside", duration: "15m" },
+    { activity: "Shut Everything Down", duration: "30m" },
+  ],
+};
+
 function startOfToday() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -54,8 +82,15 @@ function getStatusLabel(score: number): {
     status: "overloaded",
     headline: "Overloaded",
     description:
-      "You're running at full capacity. Take a break, clear your mind, and come back.",
+      "You're running at full capacity. Step back before you add anything else.",
   };
+}
+
+function pickRecommendation(
+  status: "clear" | "active" | "noisy" | "overloaded",
+) {
+  const list = RECOMMENDATIONS[status];
+  return list[Math.floor(Math.random() * list.length)];
 }
 
 export async function GET(request: NextRequest) {
@@ -109,11 +144,11 @@ export async function GET(request: NextRequest) {
     const randomCount = randoms.length;
     const taskCount = tasks.length;
 
-    // worries weighted x2 since they carry more cognitive load
     const score = worryCount * 2 + dumpCount + randomCount + taskCount;
     const intensity = Math.min(score / NOISY_THRESHOLD, 1);
 
     const { status, headline, description } = getStatusLabel(score);
+    const recommendation = pickRecommendation(status);
 
     return NextResponse.json({
       success: true,
@@ -123,6 +158,7 @@ export async function GET(request: NextRequest) {
         description,
         score,
         intensity,
+        recommendation,
         counts: {
           dumps: dumpCount,
           worries: worryCount,
