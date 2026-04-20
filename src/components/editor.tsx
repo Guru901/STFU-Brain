@@ -269,17 +269,9 @@ export default function Editor() {
 
           {/* Font Size Dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <button
-                className={cn(
-                  "h-8 px-2 rounded-md flex items-center gap-1",
-                  "text-slate-400 hover:text-slate-600 hover:bg-slate-100",
-                  "text-xs font-medium transition-colors",
-                )}
-              >
-                {activeFontLabel}
-                <HugeiconsIcon icon={ChevronDown} className="w-3 h-3" />
-              </button>
+            <DropdownMenuTrigger className="h-8 px-2 rounded-md flex items-center gap-1">
+              {activeFontLabel}
+              <HugeiconsIcon icon={ChevronDown} className="w-3 h-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8}>
               {FONT_SIZES.map(({ label, value }) => (

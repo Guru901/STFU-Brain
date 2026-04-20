@@ -166,6 +166,7 @@ export default function AppSidebar() {
                       No pending tasks. You&apos;re all clear 🌿
                     </p>
                   ) : (
+                    Array.isArray(tasks) &&
                     tasks?.map((task) => {
                       const isSelected = selectedTask.includes(task.id);
                       return (

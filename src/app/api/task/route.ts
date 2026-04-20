@@ -62,6 +62,7 @@ export async function GET(req: NextRequest) {
         priority: taskTable.priority,
         extraContext: taskTable.extraContext,
         completed: taskTable.completed,
+        tag: taskTable.tag,
       })
       .from(taskTable)
       .where(
