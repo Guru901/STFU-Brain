@@ -1,17 +1,25 @@
 "use client";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -82,36 +90,48 @@ function TaskDetailDialog({
   task,
   open,
   onOpenChange,
+  onEdit,
 }: {
   task: Task | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
+  onEdit: (task: Task) => void;
 }) {
   if (!task) return null;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg rounded-2xl p-8 gap-0">
         <DialogHeader className="gap-3 pr-2 mb-4">
-          <div className="flex items-center gap-3">
-            <Badge
-              className={`text-[11px] tracking-widest rounded-sm font-semibold ${priorityBadgeClass[task.priority]}`}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Badge
+                className={`text-[11px] tracking-widest rounded-sm font-semibold ${priorityBadgeClass[task.priority]}`}
+              >
+                {priorityLabel[task.priority]}
+              </Badge>
+              {task.tag && (
+                <span className="text-[12px] text-[#9AA09D] tracking-wide font-medium">
+                  {task.tag.toUpperCase()}
+                </span>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-[12px] text-[#9AA09D] hover:text-[#4A4F4C] tracking-wide h-7 px-3"
+              onClick={() => {
+                onOpenChange(false);
+                onEdit(task);
+              }}
             >
-              {priorityLabel[task.priority]}
-            </Badge>
-            {task.tag && (
-              <span className="text-[12px] text-[#9AA09D] tracking-wide font-medium">
-                {task.tag.toUpperCase()}
-              </span>
-            )}
+              Edit task
+            </Button>
           </div>
           <DialogTitle className="text-[22px] font-medium leading-snug text-[#1C1C1C]">
             {task.content}
           </DialogTitle>
         </DialogHeader>
-
         <Separator className="mb-5" />
-
         <div className="flex flex-col gap-2 mb-5">
           <p className="text-[11px] font-semibold tracking-widest text-[#9AA09D]">
             EXTRA CONTEXT
@@ -126,9 +146,7 @@ function TaskDetailDialog({
             </p>
           )}
         </div>
-
         <Separator className="mb-5" />
-
         <div className="flex items-center gap-6 text-[#9AA09D] text-[13px] mb-6">
           <div className="flex items-center gap-2">
             <svg
@@ -153,8 +171,158 @@ function TaskDetailDialog({
             <span>{priorityLabel[task.priority]} priority</span>
           </div>
         </div>
-
         <FocusButton taskId={task.id} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditTaskDialog({
+  task,
+  open,
+  onOpenChange,
+  onSave,
+  isSaving,
+}: {
+  task: Task | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSave: (
+    id: string,
+    updates: {
+      content: string;
+      extraContext: string | null;
+      priority: "low" | "routine" | "high";
+    },
+  ) => void;
+  isSaving: boolean;
+}) {
+  const [content, setContent] = useState(task?.content ?? "");
+  const [extraContext, setExtraContext] = useState(task?.extraContext ?? "");
+  const [priority, setPriority] = useState<"low" | "routine" | "high">(
+    task?.priority ?? "routine",
+  );
+
+  // sync when task changes
+  if (task && content === "" && task.content) {
+    setContent(task.content);
+    setExtraContext(task.extraContext ?? "");
+    setPriority(task.priority);
+  }
+
+  if (!task) return null;
+
+  const handleOpen = (v: boolean) => {
+    if (v) {
+      setContent(task.content);
+      setExtraContext(task.extraContext ?? "");
+      setPriority(task.priority);
+    }
+    onOpenChange(v);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpen}>
+      <DialogContent className="max-w-lg rounded-2xl p-8 gap-0">
+        <DialogHeader className="mb-6">
+          <DialogTitle className="text-[18px] font-medium text-[#1C1C1C]">
+            Edit Task
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-5">
+          {/* Content */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-semibold tracking-widest text-[#9AA09D]">
+              TASK
+            </label>
+            <Input
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="border-[#E8EAE8] text-[15px] text-[#1C1C1C]"
+              placeholder="What needs to be done?"
+            />
+          </div>
+
+          {/* Extra context */}
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold tracking-widest text-[#9AA09D]">
+              EXTRA CONTEXT
+            </label>
+            <Textarea
+              value={extraContext}
+              onChange={(e) => setExtraContext(e.target.value)}
+              className="border-[#E8EAE8] text-[16px] text-[#1C1C1C] resize-none min-h-[100px]"
+              placeholder="Any details that would help you do this?"
+            />
+          </div>
+
+          {/* Priority */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-semibold tracking-widest text-[#9AA09D]">
+              PRIORITY
+            </label>
+            <Select
+              value={priority.toLocaleUpperCase()}
+              onValueChange={(v) =>
+                setPriority(v as "low" | "routine" | "high")
+              }
+            >
+              <SelectTrigger className="border-[#E8EAE8] focus:ring-primary">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="high">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#8B1A2F]" />
+                    High
+                  </div>
+                </SelectItem>
+                <SelectItem value="routine">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    Routine
+                  </div>
+                </SelectItem>
+                <SelectItem value="low">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#B0B5B2]" />
+                    Low
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="flex-1 text-[#767C79] py-2"
+              onClick={() => onOpenChange(false)}
+              disabled={isSaving}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 gap-2 py-2"
+              disabled={!content.trim() || isSaving}
+              onClick={() =>
+                onSave(task.id, {
+                  content,
+                  extraContext: extraContext.trim() || null,
+                  priority,
+                })
+              }
+            >
+              {isSaving && (
+                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              )}
+              Save changes
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -164,7 +332,8 @@ export default function AllTasks() {
   const queryClient = useQueryClient();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  // track which task ids are pending a toggle for optimistic UI
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery({
@@ -208,8 +377,40 @@ export default function AllTasks() {
     },
   });
 
+  const editMutation = useMutation({
+    mutationFn: async ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: {
+        content: string;
+        extraContext: string | null;
+        priority: "low" | "routine" | "high";
+      };
+    }) => {
+      const res = await fetch(`/api/edit-task/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error("Failed to edit task");
+      return res.json();
+    },
+    onSuccess: () => {
+      setEditOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["next-tasks"] });
+    },
+  });
+
   const toggle = (id: string, completed: boolean) =>
     toggleMutation.mutate({ id, completed });
+
+  const openEdit = (task: Task) => {
+    setEditTask(task);
+    setEditOpen(true);
+  };
 
   const featured: Task | null = data?.data?.featured ?? null;
   const tasks: Task[] = data?.data?.tasks ?? [];
@@ -226,6 +427,14 @@ export default function AllTasks() {
         task={selectedTask}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        onEdit={(task) => openEdit(task)}
+      />
+      <EditTaskDialog
+        task={editTask}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSave={(id, updates) => editMutation.mutate({ id, updates })}
+        isSaving={editMutation.isPending}
       />
 
       {/* Header */}
@@ -247,7 +456,6 @@ export default function AllTasks() {
       <div className="flex flex-col gap-10 mx-auto max-w-6xl w-6xl">
         {/* Featured row */}
         <div className="flex gap-6">
-          {/* Featured task card */}
           <Card className="flex-1 min-h-80 rounded-2xl border-none shadow-none">
             <CardContent className="p-8 h-full flex flex-col justify-between gap-6">
               {isLoading ? (
@@ -271,14 +479,22 @@ export default function AllTasks() {
               ) : featured ? (
                 <>
                   <div className="flex items-start justify-between">
-                    <Badge
-                      className={`text-[11px] tracking-widest rounded-sm font-semibold ${priorityBadgeClass[featured.priority]}`}
+                    {featured.tag && featured.tag.length > 0 && (
+                      <Badge
+                        className={`text-[11px] tracking-widest rounded-sm font-semibold ${priorityBadgeClass[featured.priority]}`}
+                      >
+                        {featured.tag.toUpperCase()}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[12px] text-[#9AA09D] hover:text-[#4A4F4C] tracking-wide h-7 px-3 ml-auto"
+                      onClick={() => openEdit(featured)}
                     >
-                      {featured.tag?.toUpperCase() ??
-                        priorityLabel[featured.priority]}
-                    </Badge>
+                      Edit task
+                    </Button>
                   </div>
-
                   <div className="flex gap-4 items-start">
                     <div className="mt-1 relative">
                       <Checkbox
@@ -310,7 +526,6 @@ export default function AllTasks() {
                       )}
                     </div>
                   </div>
-
                   <div className="flex items-center gap-6 text-[#9AA09D] text-[13px]">
                     <div className="flex items-center gap-2">
                       <svg
@@ -335,7 +550,6 @@ export default function AllTasks() {
                       <span>{priorityLabel[featured.priority]} priority</span>
                     </div>
                   </div>
-
                   <FocusButton taskId={featured.id} />
                 </>
               ) : (
@@ -348,14 +562,13 @@ export default function AllTasks() {
             </CardContent>
           </Card>
 
-          {/* Side card — second highest priority task */}
           <Card className="w-[320px] rounded-2xl border-none shadow-none">
             <CardContent className="p-8 h-full flex flex-col justify-between gap-6">
               {isLoading ? (
                 <>
                   <Skeleton className="w-20 h-6 rounded-sm" />
                   <div className="flex gap-4 items-start">
-                    <Skeleton className="w-5 h-5 rounded-md mt-1 flex-shrink-0" />
+                    <Skeleton className="w-5 h-5 rounded-md mt-1 shrink-0" />
                     <div className="flex flex-col gap-3 flex-1">
                       <Skeleton className="w-full h-6 rounded" />
                       <Skeleton className="w-3/4 h-6 rounded" />
@@ -367,13 +580,23 @@ export default function AllTasks() {
                 </>
               ) : tasks[0] ? (
                 <>
-                  <Badge
-                    className={`text-[11px] tracking-widest rounded-sm font-semibold w-fit ${priorityBadgeClass[tasks[0].priority]}`}
-                  >
-                    {tasks[0].tag?.toUpperCase() ??
-                      priorityLabel[tasks[0].priority]}
-                  </Badge>
-
+                  <div className="flex items-start justify-between">
+                    {tasks[0].tag && tasks[0].tag.length > 0 && (
+                      <Badge
+                        className={`text-[11px] tracking-widest rounded-sm font-semibold w-fit ${priorityBadgeClass[tasks[0].priority]}`}
+                      >
+                        {tasks[0].tag.toUpperCase()}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[12px] text-[#9AA09D] hover:text-[#4A4F4C] tracking-wide h-7 px-3 ml-auto"
+                      onClick={() => openEdit(tasks[0])}
+                    >
+                      Edit task
+                    </Button>
+                  </div>
                   <div className="flex gap-4 items-start">
                     <div className="mt-1 relative">
                       <Checkbox
@@ -399,7 +622,6 @@ export default function AllTasks() {
                       )}
                     </div>
                   </div>
-
                   <div className="flex items-center gap-2 text-[#9AA09D] text-[13px]">
                     <svg
                       width="14"
@@ -416,7 +638,6 @@ export default function AllTasks() {
                     </svg>
                     <span>{formatDate(tasks[0].createdAt)}</span>
                   </div>
-
                   <FocusButton taskId={tasks[0].id} />
                 </>
               ) : (
@@ -483,26 +704,47 @@ export default function AllTasks() {
                           </span>
                         </div>
                       </div>
-
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDialog(task)}
-                        className="ml-3 flex-shrink-0 w-7 h-7 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-150 text-[#9AA09D]"
-                      >
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                      <div className="flex items-center gap-1 ml-3 opacity-0 group-hover:opacity-100 transition-all duration-150">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEdit(task)}
+                          className="flex-shrink-0 w-7 h-7 rounded-lg text-[#9AA09D]"
                         >
-                          <path d="M9 18l6-6-6-6" />
-                        </svg>
-                      </Button>
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openDialog(task)}
+                          className="flex-shrink-0 w-7 h-7 rounded-lg text-[#9AA09D]"
+                        >
+                          <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M9 18l6-6-6-6" />
+                          </svg>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

@@ -10,7 +10,7 @@ import { Tabs, TabsList } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/lib/useUser";
 
 type AddTaskFormValues = {
@@ -23,6 +23,7 @@ type AddTaskFormValues = {
 export default function AddTask() {
   const router = useRouter();
   const { codes } = useUser();
+  const queryClient = useQueryClient();
 
   const { register, handleSubmit, control } = useForm<AddTaskFormValues>({
     defaultValues: {
@@ -50,6 +51,7 @@ export default function AddTask() {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       router.push("/dashboard");
     },
   });
