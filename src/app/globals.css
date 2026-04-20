@@ -184,3 +184,7 @@
   float: left;
   height: 0;
 }
+
+li > p {
+  margin-block: 0.5rem !important;
+}
