@@ -7,7 +7,7 @@ import { useParams, useSearchParams } from "next/navigation";
 
 export default function Entry() {
   const id = useParams().id as string;
-  const highLight = useSearchParams().get("highLight") || undefined;
+  const highLight = useSearchParams().get("highlight") || undefined;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["entry", id],
