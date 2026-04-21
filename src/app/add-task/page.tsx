@@ -125,6 +125,11 @@ export default function AddTask() {
               type="text"
               placeholder="Any context to quiet the mind?"
               {...register("note")}
+              onKeyDown={(e) => {
+                if (e.shiftKey && e.key === "Enter") {
+                  void handleSubmit(onSubmit)();
+                }
+              }}
               className="bg-transparent! h-8! border-none border-b! outline-none focus:ring-0! text-lg!"
             />
             <Input
@@ -132,6 +137,11 @@ export default function AddTask() {
               placeholder="Any tag about the task (deep work or personal)?"
               {...register("tag")}
               className="bg-transparent! h-8! border-none border-b! outline-none focus:ring-0! text-lg!"
+              onKeyDown={(e) => {
+                if (e.shiftKey && e.key === "Enter") {
+                  void handleSubmit(onSubmit)();
+                }
+              }}
             />
           </CardContent>
         </Card>
