@@ -3,10 +3,11 @@
 import { CalenderIcon, ScheduleIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function Entry() {
   const id = useParams().id as string;
+  const highLight = useSearchParams().get("highLight") || undefined;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["entry", id],
@@ -38,6 +39,7 @@ export default function Entry() {
         </div>
       </main>
     );
+
   if (error) return <div className="p-6">Something went wrong</div>;
 
   const date = data?.createdAt ? new Date(data.createdAt) : null;
@@ -56,6 +58,22 @@ export default function Entry() {
         minute: "2-digit",
         hour12: true,
       })
+    : "";
+
+  const getHighlightedHTML = (html: string) => {
+    if (!highLight) return html;
+
+    const escaped = highLight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex
+    const regex = new RegExp(`(${escaped})`, "gi");
+
+    return html.replace(
+      regex,
+      `<mark class="bg-yellow-300 text-black px-1 rounded">$1</mark>`,
+    );
+  };
+
+  const finalHTML = data?.html.__html
+    ? getHighlightedHTML(data.html.__html)
     : "";
 
   return (
@@ -81,7 +99,7 @@ export default function Entry() {
 
         <div
           className="prose prose-neutral max-w-none my-10"
-          dangerouslySetInnerHTML={data?.html}
+          dangerouslySetInnerHTML={{ __html: finalHTML }}
         />
       </div>
     </main>

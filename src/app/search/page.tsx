@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type ResultType = "dump" | "random" | "worry" | "task";
 
@@ -197,8 +197,19 @@ function CompactResult({
   result: SearchResult;
   query: string;
 }) {
+  const router = useRouter();
+
   return (
-    <div className="flex items-center gap-4 py-4 border-b border-[#F0F2F0] last:border-0 group cursor-pointer">
+    <div
+      className="flex items-center gap-4 py-4 border-b border-[#F0F2F0] last:border-0 group cursor-pointer"
+      onClick={() => {
+        if (typeBadge[result.type].label === "Entry") {
+          router.push(
+            `/entry/${result.id}?highlight=${encodeURIComponent(query)}`,
+          );
+        }
+      }}
+    >
       <div className="w-9 h-9 rounded-xl bg-[#F0F2F0] flex items-center justify-center shrink-0 text-[#767C79] group-hover:bg-[#E8EAE8] transition-colors">
         {typeIcon[result.type]}
       </div>
@@ -242,27 +253,6 @@ function EmptyState({ query }: { query: string }) {
         </p>
       </div>
     </div>
-  );
-}
-
-function VisualInsightCard() {
-  return (
-    <Card className="rounded-2xl border border-[#E8EAE8] shadow-none">
-      <CardContent className="p-6 flex flex-col gap-4">
-        <span className="text-[10px] tracking-widest text-[#9AA09D] font-semibold">
-          VISUAL INSIGHT
-        </span>
-        <div className="w-full h-36 bg-[#E8EAE8] rounded-xl flex items-center justify-center relative overflow-hidden">
-          <div className="w-8 h-8 rounded-full bg-[#B0B5B2] absolute left-[38%] top-[40%]" />
-          <div className="w-5 h-5 rounded-full bg-[#9AA09D] absolute left-[50%] top-[50%]" />
-          <div className="w-6 h-6 rounded-full bg-[#C0C5C2] absolute left-[30%] top-[55%]" />
-        </div>
-        <p className="text-[13px] text-[#4A4F4C] leading-relaxed">
-          Your thoughts regarding <strong>&apos;Work&apos;</strong> have
-          increased in intensity by 14% this week. Consider a 5-minute breather.
-        </p>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -448,8 +438,6 @@ function MindfulRecall() {
             )}
 
             <div className="flex gap-6">
-              <VisualInsightCard />
-              {/* extra results as list */}
               {results.length > 4 && (
                 <Card className="flex-1 rounded-2xl border border-[#E8EAE8] shadow-none">
                   <CardContent className="px-6 py-2 flex flex-col">
@@ -487,7 +475,6 @@ function MindfulRecall() {
               </Card>
             </div>
 
-            {/* Result count */}
             <p className="text-[12px] text-[#9AA09D] text-center">
               {results.length} result{results.length !== 1 ? "s" : ""} for
               &ldquo;{debouncedQuery}&rdquo;
