@@ -72,9 +72,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(tasks);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({
-      success: false,
-      message: "Error fetching tasks",
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Error fetching tasks",
+      },
+      { status: 500 },
+    );
   }
 }

@@ -532,30 +532,38 @@ export default function Declutter() {
       {
         queryKey: ["get-tasks"],
         queryFn: async (): Promise<Task[]> => {
-          const response = await fetch("/api/task");
-          return response.json();
+          const res = await fetch("/api/task");
+          const data = await res.json();
+          if (!Array.isArray(data)) return [];
+          return data;
         },
       },
       {
         queryKey: ["get-random-thoughts"],
         queryFn: async (): Promise<RandomThought[]> => {
           const response = await fetch("/api/random-thoughts");
-          return response.json();
+          const data = await response.json();
+          if (!Array.isArray(data)) return [];
+          return data;
         },
       },
       {
         queryKey: ["get-worries"],
         queryFn: async (): Promise<Worry[]> => {
           const response = await fetch("/api/worries");
-          return response.json();
+          const data = await response.json();
+          if (!Array.isArray(data)) return [];
+          return data;
         },
       },
     ],
   });
 
-  const pendingTasks = tasks.data ?? [];
-  const thoughts = randomThoughts.data ?? [];
-  const worriesList = worries.data ?? [];
+  const pendingTasks = Array.isArray(tasks.data) ? tasks.data : [];
+  const thoughts = Array.isArray(randomThoughts.data)
+    ? randomThoughts.data
+    : [];
+  const worriesList = Array.isArray(worries.data) ? worries.data : [];
 
   return (
     <div className="p-12 h-full flex flex-col gap-16">
@@ -588,32 +596,34 @@ export default function Declutter() {
             <TasksEmpty />
           ) : (
             <div className="flex flex-col gap-6">
-              {pendingTasks.map((task) => (
-                <button
-                  key={task.id}
-                  onClick={() => {
-                    setSelectedTask(task);
-                    setDialogOpen(true);
-                  }}
-                  className="p-5 bg-[#F2F4F2] flex flex-col gap-2 items-start text-left hover:bg-[#EAECE9] transition-colors w-full"
-                >
-                  <p>{task.content}</p>
-                  <div
-                    className={buttonVariants({
-                      variant:
-                        task.priority === "high"
-                          ? "destructive"
-                          : task.priority === "routine"
-                            ? "default"
-                            : "secondary",
-                      className:
-                        "w-max px-2 py-1 pointer-events-none text-[10px]",
-                    })}
+              {!tasks.isError &&
+                pendingTasks &&
+                pendingTasks?.map((task) => (
+                  <button
+                    key={task.id}
+                    onClick={() => {
+                      setSelectedTask(task);
+                      setDialogOpen(true);
+                    }}
+                    className="p-5 bg-[#F2F4F2] flex flex-col gap-2 items-start text-left hover:bg-[#EAECE9] transition-colors w-full"
                   >
-                    {task.priority}
-                  </div>
-                </button>
-              ))}
+                    <p>{task.content}</p>
+                    <div
+                      className={buttonVariants({
+                        variant:
+                          task.priority === "high"
+                            ? "destructive"
+                            : task.priority === "routine"
+                              ? "default"
+                              : "secondary",
+                        className:
+                          "w-max px-2 py-1 pointer-events-none text-[10px]",
+                      })}
+                    >
+                      {task.priority}
+                    </div>
+                  </button>
+                ))}
             </div>
           )}
         </div>

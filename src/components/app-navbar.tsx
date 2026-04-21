@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SearchIcon, UserIcon } from "./ui/icons";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 
 export default function AppNavbar() {
   const pathname = usePathname();
+  const q = useSearchParams().get("q");
 
   const today = new Date();
 
@@ -30,7 +31,7 @@ export default function AppNavbar() {
         <h1 className="text-md">{formattedDate}</h1>
       </div>
       <div className="flex gap-6 items-center">
-        <Search />
+        <Search q={q} />
         <Link href={"/me"}>
           <UserIcon />
         </Link>
@@ -52,25 +53,30 @@ export default function AppNavbar() {
   );
 }
 
-function Search() {
-  const { register, handleSubmit, reset } = useForm<{ query: string }>({
-    defaultValues: { query: "" },
+function Search({ q }: { q: string | null }) {
+  const { register, handleSubmit } = useForm<{ query: string }>({
+    defaultValues: { query: String(q || "") },
   });
+  const router = useRouter();
 
-  const onSubmit = () => {
-    reset();
-  };
+  function onSubmit(data: { query: string }) {
+    router.push(`/search?q=${data.query}`);
+  }
 
   return (
     <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="relative">
         <Input
-          className="bg-[#F2F4F2] py-2 rounded-full w-[256px] h-8"
+          defaultValue={q || ""}
+          className="bg-[#F2F4F2] py-2 w-[256px] h-8"
           placeholder="Search..."
           type="text"
           {...register("query")}
         />
-        <SearchIcon className="absolute top-1/2 right-3 -translate-y-1/2" />
+        <SearchIcon
+          className="absolute top-1/2 right-3 -translate-y-1/2"
+          onClick={handleSubmit(onSubmit)}
+        />
       </div>
     </form>
   );

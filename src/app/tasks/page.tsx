@@ -252,7 +252,7 @@ function EditTaskDialog({
             <Textarea
               value={extraContext}
               onChange={(e) => setExtraContext(e.target.value)}
-              className="border-[#E8EAE8] text-[16px] text-[#1C1C1C] resize-none min-h-[100px]"
+              className="border-[#E8EAE8] text-[16px] text-[#1C1C1C] resize-none min-h-25"
               placeholder="Any details that would help you do this?"
             />
           </div>
@@ -658,7 +658,7 @@ export default function AllTasks() {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <Card key={i} className="rounded-2xl border-none shadow-none">
                     <CardContent className="px-6 py-5 flex items-center gap-4">
-                      <Skeleton className="w-5 h-5 rounded-md flex-shrink-0" />
+                      <Skeleton className="w-5 h-5 rounded-md shrink-0" />
                       <div className="flex flex-col gap-1.5 flex-1">
                         <Skeleton className="w-full h-4 rounded" />
                         <Skeleton className="w-1/2 h-3 rounded" />
@@ -673,7 +673,7 @@ export default function AllTasks() {
                   >
                     <CardContent className="px-6 py-5 flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <div className="relative flex-shrink-0">
+                        <div className="relative shrink-0">
                           <Checkbox
                             checked={task.completed}
                             onCheckedChange={(v) => toggle(task.id, !!v)}
@@ -709,7 +709,7 @@ export default function AllTasks() {
                           variant="ghost"
                           size="icon"
                           onClick={() => openEdit(task)}
-                          className="flex-shrink-0 w-7 h-7 rounded-lg text-[#9AA09D]"
+                          className="shrink-0 w-7 h-7 rounded-lg text-[#9AA09D]"
                         >
                           <svg
                             width="13"
@@ -729,7 +729,7 @@ export default function AllTasks() {
                           variant="ghost"
                           size="icon"
                           onClick={() => openDialog(task)}
-                          className="flex-shrink-0 w-7 h-7 rounded-lg text-[#9AA09D]"
+                          className="shrink-0 w-7 h-7 rounded-lg text-[#9AA09D]"
                         >
                           <svg
                             width="15"

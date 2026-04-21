@@ -63,10 +63,17 @@ export function FocusMode({ fill = "" }) {
   );
 }
 
-export function SearchIcon({ className = "" }) {
+export function SearchIcon({
+  className = "",
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
   return (
     <svg
       width="18"
+      onClick={onClick}
       height="18"
       viewBox="0 0 18 18"
       fill="none"
