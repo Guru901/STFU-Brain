@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 
 type ResultType = "dump" | "random" | "worry" | "task";
 
@@ -111,8 +112,6 @@ const typeIcon: Record<ResultType, React.ReactNode> = {
   ),
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function formatDate(iso: string | null) {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-US", {
@@ -144,56 +143,6 @@ function highlight(text: string, query: string) {
     </>
   );
 }
-
-// ─── Guided Filtering Popup ───────────────────────────────────────────────────
-
-function GuidedFilteringPopup({ onDismiss }: { onDismiss: () => void }) {
-  return (
-    <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-2 w-72 bg-white rounded-2xl shadow-2xl border border-[#E8EAE8] p-5 z-20">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-[#F0F2F0] flex items-center justify-center">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#4A4F4C"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
-        </div>
-        <span className="text-[14px] font-semibold text-[#1C1C1C]">
-          Guided Filtering
-        </span>
-      </div>
-      <p className="text-[13px] text-[#767C79] leading-relaxed mb-4">
-        You seem to be searching for past stressors. Should we prioritize
-        entries where you found a resolution?
-      </p>
-      <div className="flex items-center gap-3">
-        <Button
-          size="sm"
-          className="text-[11px] tracking-widest font-semibold rounded-lg px-4 h-8"
-        >
-          YES, GUIDE ME
-        </Button>
-        <button
-          onClick={onDismiss}
-          className="text-[11px] tracking-widest text-[#9AA09D] font-semibold hover:text-[#4A4F4C] transition-colors"
-        >
-          DISMISS
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─── Featured Result Card ─────────────────────────────────────────────────────
 
 function FeaturedCard({
   result,
@@ -241,8 +190,6 @@ function FeaturedCard({
   );
 }
 
-// ─── Compact Result Row ───────────────────────────────────────────────────────
-
 function CompactResult({
   result,
   query,
@@ -266,8 +213,6 @@ function CompactResult({
     </div>
   );
 }
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
 
 function EmptyState({ query }: { query: string }) {
   return (
@@ -322,9 +267,9 @@ function VisualInsightCard() {
 }
 
 export default function MindfulRecall() {
-  const [input, setInput] = useState("");
+  const q = useSearchParams().get("q") ?? "";
+  const [input, setInput] = useState(q);
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [showGuided, setShowGuided] = useState(false);
   const [activeType, setActiveType] = useState<ResultType | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -337,20 +282,6 @@ export default function MindfulRecall() {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [input]);
-
-  useEffect(() => {
-    const worryWords = [
-      "stress",
-      "anxious",
-      "worry",
-      "pressure",
-      "fear",
-      "overwhelm",
-    ];
-    if (worryWords.some((w) => debouncedQuery.toLowerCase().includes(w))) {
-      setShowGuided(true);
-    }
-  }, [debouncedQuery]);
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["search", debouncedQuery],
@@ -379,7 +310,6 @@ export default function MindfulRecall() {
 
   return (
     <div className="min-h-screen p-12 flex flex-col gap-10 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="flex flex-col gap-2">
         <h1 className="text-[52px] font-semibold leading-none tracking-tight text-[#1C1C1C]">
           Mindful Recall
@@ -390,7 +320,6 @@ export default function MindfulRecall() {
         </p>
       </div>
 
-      {/* Search + Filters */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
@@ -421,7 +350,6 @@ export default function MindfulRecall() {
             />
           </div>
 
-          {/* Type filter buttons */}
           {(["dump", "worry", "random", "task"] as ResultType[]).map((t) => (
             <Button
               key={t}
@@ -549,10 +477,6 @@ export default function MindfulRecall() {
                   )}
                 </CardContent>
               </Card>
-
-              {showGuided && (
-                <GuidedFilteringPopup onDismiss={() => setShowGuided(false)} />
-              )}
             </div>
 
             {/* Result count */}
