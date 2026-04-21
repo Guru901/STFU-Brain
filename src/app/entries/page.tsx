@@ -3,7 +3,6 @@ import { DumpsIcon } from "@/components/ui/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import DOMPurify from "isomorphic-dompurify";
 
 type Dump = {
   id: string;
@@ -32,9 +31,13 @@ function formatDate(dateStr: string) {
   };
 }
 
+function stripHtml(html: string) {
+  return html.replace(/<[^>]+>/g, "");
+}
+
 function getPreview(html: string) {
   const withBreaks = html.replace(/<\/(p|div|h[1-6]|li)>/gi, "\n");
-  const clean = DOMPurify.sanitize(withBreaks, { ALLOWED_TAGS: [] });
+  const clean = stripHtml(withBreaks);
   return clean
     .replace(/[ \t]+/g, " ")
     .replace(/\n{2,}/g, "\n")
@@ -43,7 +46,7 @@ function getPreview(html: string) {
 
 function getShortPreview(html: string) {
   const withBreaks = html.replace(/<\/(p|div|h[1-6]|li)>/gi, " · ");
-  const clean = DOMPurify.sanitize(withBreaks, { ALLOWED_TAGS: [] });
+  const clean = stripHtml(withBreaks);
   return clean.replace(/\s+/g, " ").trim().slice(0, 120);
 }
 

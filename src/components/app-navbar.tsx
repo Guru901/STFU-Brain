@@ -5,8 +5,17 @@ import { SearchIcon, UserIcon } from "./ui/icons";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { Suspense } from "react";
 
-export default function AppNavbar() {
+export default function AppNavbarWrapper() {
+  return (
+    <Suspense fallback={<div className="h-16" />}>
+      <AppNavbar />
+    </Suspense>
+  );
+}
+
+function AppNavbar() {
   const pathname = usePathname();
   const q = useSearchParams().get("q");
 

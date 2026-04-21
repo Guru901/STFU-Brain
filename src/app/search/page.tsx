@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -266,7 +266,15 @@ function VisualInsightCard() {
   );
 }
 
-export default function MindfulRecall() {
+export default function Search() {
+  return (
+    <Suspense>
+      <MindfulRecall />
+    </Suspense>
+  );
+}
+
+function MindfulRecall() {
   const q = useSearchParams().get("q") ?? "";
   const [input, setInput] = useState(q);
   const [debouncedQuery, setDebouncedQuery] = useState("");
