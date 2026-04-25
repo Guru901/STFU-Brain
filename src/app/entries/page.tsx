@@ -177,6 +177,11 @@ export default function Dumps() {
                     href={`/entry/${dump.id}`}
                     className="bg-[#F2F4F2] p-8 flex-1 flex flex-col gap-3 rounded-xl"
                   >
+                    {d.time && (
+                      <p className="text-[14px] font-semibold text-primary">
+                        {d.full} • {d.time}
+                      </p>
+                    )}
                     {d.label && (
                       <p className="text-[16px] font-semibold text-primary">
                         {d.label}
