@@ -559,11 +559,11 @@ export default function Declutter() {
     ],
   });
 
-  const pendingTasks = Array.isArray(tasks.data) ? tasks.data.reverse() : [];
+  const pendingTasks = Array.isArray(tasks.data) ? tasks.data : [];
   const thoughts = Array.isArray(randomThoughts.data)
-    ? randomThoughts.data.reverse()
+    ? randomThoughts.data
     : [];
-  const worriesList = Array.isArray(worries.data) ? worries.data.reverse() : [];
+  const worriesList = Array.isArray(worries.data) ? worries.data : [];
 
   return (
     <div className="p-12 h-full flex flex-col gap-16">

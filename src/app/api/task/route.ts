@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { taskTable } from "@/db/schema";
-import { eq, ilike, and } from "drizzle-orm";
+import { eq, ilike, and, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
         tag: taskTable.tag,
       })
       .from(taskTable)
+      .orderBy(desc(taskTable.createdAt))
       .where(
         and(ilike(taskTable.codes, codes), eq(taskTable.completed, false)),
       );

@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { worriesTable } from "@/db/schema";
 import { NextRequest, NextResponse } from "next/server";
-import { ilike } from "drizzle-orm";
+import { desc, ilike } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
         content: worriesTable.content,
       })
       .from(worriesTable)
+      .orderBy(desc(worriesTable.createdAt))
       .where(ilike(worriesTable.codes, codes));
 
     return NextResponse.json(worries);

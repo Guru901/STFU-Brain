@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { randomThoughtsTable } from "@/db/schema";
 import { NextRequest, NextResponse } from "next/server";
-import { ilike } from "drizzle-orm";
+import { desc, ilike } from "drizzle-orm";
 import { z } from "zod";
 
 const randomThoughtSchema = z.object({
@@ -59,6 +59,7 @@ export async function GET(req: NextRequest) {
         content: randomThoughtsTable.content,
       })
       .from(randomThoughtsTable)
+      .orderBy(desc(randomThoughtsTable.createdAt))
       .where(ilike(randomThoughtsTable.codes, codes))
       .limit(10);
 
